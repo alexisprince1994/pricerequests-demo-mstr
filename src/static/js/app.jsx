@@ -2,6 +2,7 @@
 import React from 'react'
 import Product from './pricerequests/product'
 import Customer from './pricerequests/customer'
+import RequestReason from './pricerequests/requestreason'
 export default class App extends React.Component {
   constructor (props) {
     super(props)
@@ -36,6 +37,9 @@ export default class App extends React.Component {
               className='form-group'
               labelValue='Product Name'
               formSubmitted={false}
+            />
+            <RequestReason
+
             />
 
             <button className='btn btn-success'> Submit </button>
