@@ -50,11 +50,12 @@ def customers():
 	search_term = request.args.get('q')
 
 	if search_term:
-		query_results = Customer.query.filter(Customer.customername.like(search_term)).all()
+		query_results = Customer.query.filter(
+			Customer.customername.like('%' + search_term + '%')).all()
 	else:
 		query_results = Customer.query.all()
-	results = [{'customerid': customer.customerid, 'customername': customer.customername} for customer in query_results]
-
+	results = [{'id': customer.customerid, 'label': customer.customername} for customer in query_results]
+	print('results are {}'.format(results))
 	return jsonify(results)
 
 @app.route('/pricerequeststatuses')

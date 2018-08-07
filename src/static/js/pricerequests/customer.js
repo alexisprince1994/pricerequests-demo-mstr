@@ -1,70 +1,97 @@
 import React, { Component } from 'react'
+import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 
 class Customer extends Component {
   constructor (props) {
     super(props)
     // Props
-    this.labelValue = props.labelValue
-    this.value = props.value
+
+    this.handleBlur = this.handleBlur.bind(this)
+    this.onSelect = this.onSelect.bind(this)
 
     // Other Expected Props
     // 1) validate(id, value)
     // 2) onChange(id, value)
 
-    this.state = {'touched': false, 'giveFeedback': this.props.formSubmitted}
+    this.state = {
+      'touched': false,
+      'giveFeedback': this.props.formSubmitted,
+      'isLoading': false,
+      'feedback': null
+    }
+  }
 
-    // Event Binding
-    this.handleBlur = this.handleBlur.bind(this)
-    this.handleChange = this.handleChange.bind(this)
+  buildFeedback () {
+    let feedback
+
+    if (this.state.touched || this.state.giveFeedback) {
+      if (this.state.selected) {
+        this.setState({
+          feedback: true
+        })
+      } else {
+        this.setState({
+          feedback: false
+        })
+      }
+    } else {
+      this.setState({
+        feedback: null
+      })
+    }
+  }
+
+  onSelect (selected) {
+    // Needing to use buildFeedback as a callback to make sure
+    // we wait until the async call of setState is complete.
+
+    this.setState({selected}, () => this.buildFeedback())
   }
 
   handleBlur (event) {
-    this.setState({'touched': true, 'giveFeedback': true})
+    // Needing to use buildFeedback as a callback to make sure
+    // we wait until the async call of setState is complete.
+    this.setState({
+      'touched': true,
+      'giveFeedback': true
+    }, () => this.buildFeedback())
   }
 
-  shouldGiveFeedback () {
-    return (this.state.touched || this.props.formSubmitted)
-  }
-
-  handleChange (event) {
-    this.props.onChange(this.props.id, event.target.value)
-  }
-
+  // isInvalid={(typeof (this.state.feedback) === 'object') ? undefined : true}
   render () {
-    let feedback
-    let feedbackClassName
-    const shouldGiveFeedback = this.shouldGiveFeedback()
-
-    if (shouldGiveFeedback) {
-      const validated = this.props.validator(this.props.id, this.props.value)
-      if (validated) {
-        feedback = <div className='valid-feedback' />
-        feedbackClassName = 'form-control is-valid'
-      } else {
-        feedback = <div className='invalid-feedback'> This field is required! </div>
-        feedbackClassName = 'form-control is-invalid'
-      }
-    } else {
-      feedbackClassName = 'form-control'
-      feedback = false
-    }
-
+    const { feedback } = this.state
+    const { feedbackClassName } = this.state
+    const { touched } = this.state
+    const { giveFeedback } = this.state
     return (
-
       <div className={this.props.className}>
-        <label htmlFor={this.id}>
-          {this.labelValue}
+        <label htmlFor='customerName'>
+          Customer Name
         </label>
-        <select value={this.props.defaultValue}
-          className={feedbackClassName}
-          onChange={this.handleChange}
-          onBlur={this.handleBlur}
-          id={this.id}
-        >
-          {this.valueOptions}
-        </select>
+        <div className='form-group row'>
+          <AsyncTypeahead
+            className='col-9 col-md-offset-4'
+            isLoading={this.state.isLoading}
+            onBlur={this.handleBlur}
+            onChange={this.onSelect}
+            isInvalid={(!feedback && (touched || giveFeedback)) ? true : null}
+            isValid={this.state.feedback}
+            options={this.state.options}
+            selected={this.state.selected}
+            onSearch={query => {
+              this.setState({isLoading: true})
+              fetch(`http://127.0.0.1:5000/customers?q=${query}`)
+                .then(res => res.json())
+                .then(json => this.setState({
+                  isLoading: false,
+                  options: json
+                }, () => console.log(json))
+                )
+            }
+            }
+          />
 
-        {feedback && feedback ? feedback : ''}
+        </div>
       </div>
 
     )

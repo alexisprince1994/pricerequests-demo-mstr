@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
 import RequestedPrice from './requestedprice'
+import RequestedUnits from './requestedunits'
 
 class Product extends Component {
   constructor (props) {
@@ -9,6 +10,7 @@ class Product extends Component {
 
     this.onSelect = this.onSelect.bind(this)
     this.handleRequestedChange = this.handleRequestedChange.bind(this)
+    this.handleUnitsChange = this.handleUnitsChange.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
     this.requiredFieldMessage = 'This field is required.'
     // Other Expected Props
@@ -44,6 +46,28 @@ class Product extends Component {
         feedback: null
       })
     }
+  }
+
+  handleUnitsChange (event) {
+    const newRequestedUnits = event.target.value
+
+    let errorMessage
+
+    if (!newRequestedUnits) {
+      errorMessage = 'This field is required.'
+    } else if (isNaN(parseInt(newRequestedUnits))) {
+      errorMessage = 'Numbers only please!'
+    } else if (parseInt(newRequestedUnits) <= 0) {
+      errorMessage = 'A positive non-zero quantity is required.'
+    } else {
+      errorMessage = null
+    }
+
+    this.setState({
+      requestedUnits: newRequestedUnits,
+      unitsGiveFeedBack: true,
+      unitsErrorMessage: errorMessage
+    })
   }
 
   handleRequestedChange (event) {
@@ -109,7 +133,7 @@ class Product extends Component {
         </label>
         <div className='form-group row'>
           <AsyncTypeahead
-            className='col-6'
+            className='col-9 col-md-offset-4'
             isLoading={this.state.isLoading}
             onChange={this.onSelect}
             onBlur={this.handleBlur}
@@ -156,6 +180,12 @@ class Product extends Component {
             giveFeedback={this.state.requestedGiveFeedback}
             requestedPrice={this.state.requestedPrice}
             errorMessage={this.state.errorMessage}
+          />
+          <RequestedUnits
+            handleUnitsChange={this.handleUnitsChange}
+            requestedUnits={this.state.requestedUnits}
+            errorMessage={this.state.unitsErrorMessage}
+            giveFeedback={this.state.unitsGiveFeedBack}
           />
         </div>
       </div>
