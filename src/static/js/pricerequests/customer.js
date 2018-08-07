@@ -6,13 +6,6 @@ class Customer extends Component {
     // Props
     this.labelValue = props.labelValue
     this.value = props.value
-    this.valueOptions = []
-
-    const that = this
-    props.valueOptions.forEach(val => that.valueOptions.push(<option value={val}> {val} </option>))
-
-    this.required = props.required
-    this.id = props.id
 
     // Other Expected Props
     // 1) validate(id, value)

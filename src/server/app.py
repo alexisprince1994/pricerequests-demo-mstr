@@ -3,10 +3,13 @@ from models import db, Category, Product, Customer, PriceRequestStatus
 from data import create_data
 
 app = Flask(__name__, static_folder="../static/dist", template_folder="../static")
-db.init_app(app)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+db.init_app(app)
 
 @app.route('/')
 def index():

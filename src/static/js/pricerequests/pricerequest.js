@@ -9,12 +9,8 @@ class PriceRequest extends Component {
     super(props)
     this.productMinLength = 3
     this.customerMinLength = 3
-    
-    
     this.state = {'productName': null, 'requestedPrice': null, 'customerName': null}
   }
-
-
 
   render () {
     return (
@@ -24,7 +20,7 @@ class PriceRequest extends Component {
           value=''
           id='productDiv'
         />
-        
+
       </div>
     )
   }
