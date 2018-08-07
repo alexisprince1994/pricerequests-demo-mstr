@@ -19,11 +19,11 @@ class RequestReason extends Component {
     return (
       <div className='form-group'>
         <label htmlFor='requestReason'> Reason for Request </label>
-
-        <div className='col-9 col-md-offset-4'>
-          <textarea className='form-control' id='requestReason' rows='3' />
+        <div className='form-group-row'>
+          <div className='col-9'>
+            <textarea className='form-control' id='requestReason' rows='3' />
+          </div>
         </div>
-
       </div>
     )
   }

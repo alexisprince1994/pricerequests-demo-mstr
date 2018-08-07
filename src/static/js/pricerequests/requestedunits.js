@@ -20,6 +20,7 @@ class RequestedUnits extends Component {
 
   handleBlur (event) {
     this.setState({'touched': true, 'giveFeedback': true})
+    this.props.handleUnitsBlur(event)
   }
 
   shouldGiveFeedback () {

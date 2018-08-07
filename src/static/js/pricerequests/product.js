@@ -183,6 +183,7 @@ class Product extends Component {
           />
           <RequestedUnits
             handleUnitsChange={this.handleUnitsChange}
+            handleUnitsBlur={this.handleUnitsChange}
             requestedUnits={this.state.requestedUnits}
             errorMessage={this.state.unitsErrorMessage}
             giveFeedback={this.state.unitsGiveFeedBack}

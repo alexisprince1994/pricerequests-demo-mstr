@@ -26,12 +26,10 @@ class Customer extends Component {
 
     if (this.state.touched || this.state.giveFeedback) {
       if (this.state.selected) {
+        // Does a logic check to see if its null because null and
+        // false-y should be handled differently... unfortunately.
         this.setState({
-          feedback: true
-        })
-      } else {
-        this.setState({
-          feedback: false
+          feedback: !!(this.state.selected && this.state.selected)
         })
       }
     } else {

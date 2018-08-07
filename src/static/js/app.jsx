@@ -41,8 +41,14 @@ export default class App extends React.Component {
             <RequestReason
 
             />
-
-            <button className='btn btn-success'> Submit </button>
+            <div className='btn-toolbar'>
+              <div className='btn-group mr-2'>
+                <button className='btn btn-outline-success btn-lg'> Submit </button>
+              </div>
+              <div className='btn-group mr-2'>
+                <button className='btn btn-outline-info btn-lg'> Clear </button>
+              </div>
+            </div>
             <br />
             <br />
           </div>
