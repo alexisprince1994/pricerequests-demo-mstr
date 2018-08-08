@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
+import * as PriceRequestActions from './data/pricerequestactions'
+import PriceRequestStore from './data/pricerequeststore'
 
 class Customer extends Component {
   constructor (props) {
@@ -8,6 +10,8 @@ class Customer extends Component {
 
     this.handleBlur = this.handleBlur.bind(this)
     this.onSelect = this.onSelect.bind(this)
+    this.reloadCustomer = this.reloadCustomer.bind(this)
+    this.updateCustomer = this.updateCustomer.bind(this)
 
     // Other Expected Props
     // 1) validate(id, value)
@@ -19,6 +23,26 @@ class Customer extends Component {
       'isLoading': false,
       'feedback': null
     }
+  }
+
+  componentWillMount () {
+    PriceRequestStore.on('change', this.reloadCustomer)
+  }
+
+  componentWillUnmount () {
+    PriceRequestStore.removeListener('change', this.reloadCustomer)
+  }
+
+  updateCustomer (selected) {
+    const selectedObj = selected[0]
+
+    PriceRequestActions.updateCustomer(selectedObj.id, selectedObj.label)
+  }
+
+  reloadCustomer () {
+    this.setState({
+      selected: PriceRequestStore.getCustomer()
+    }, () => this.buildFeedback())
   }
 
   buildFeedback () {
@@ -42,8 +66,10 @@ class Customer extends Component {
   onSelect (selected) {
     // Needing to use buildFeedback as a callback to make sure
     // we wait until the async call of setState is complete.
-
-    this.setState({selected}, () => this.buildFeedback())
+    console.log('onSelect from customer shows selected is ', selected)
+    this.updateCustomer(selected)
+    // this.buildFeedback()
+    // this.setState({selected}, () => this.buildFeedback())
   }
 
   handleBlur (event) {
