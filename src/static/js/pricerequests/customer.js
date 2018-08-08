@@ -64,7 +64,7 @@ class Customer extends Component {
   onSelect (selected) {
     // Needing to use buildFeedback as a callback to make sure
     // we wait until the async call of setState is complete.
-    console.log('onSelect from customer shows selected is ', selected)
+
     if (selected.length !== 0) {
       const selectedObj = selected[0]
       PriceRequestActions.updateCustomer(selectedObj.id, selectedObj.label, true)
@@ -80,6 +80,7 @@ class Customer extends Component {
   // isInvalid={(typeof (this.state.feedback) === 'object') ? undefined : true}
   render () {
     const { giveFeedback, feedbackType, feedbackMessage } = this.state
+    console.log('feedbackMessage is ', feedbackMessage)
     const goodFeedback = (feedbackType === 1)
     const badFeedback = (feedbackType === -1 ? true : null)
 
@@ -113,6 +114,10 @@ class Customer extends Component {
           />
 
         </div>
+
+        <small id='customerNameHelp' className='form-text text-muted'>
+          {(feedbackMessage && feedbackMessage) ? feedbackMessage : ''}
+        </small>
       </div>
 
     )
