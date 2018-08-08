@@ -1,35 +1,37 @@
-from flask import Flask, render_template, jsonify, request
-from models import db, Category, Product, Customer, PriceRequestStatus
-from data import create_data
+from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
+from server.models import Customer, Product, PriceRequestStatus
+from flask_login import current_user, login_required
 
-app = Flask(__name__, static_folder="../static/dist", template_folder="../static")
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['TEMPLATES_AUTO_RELOAD'] = True
-
-db.init_app(app)
-
-@app.route('/')
-def index():
-
-	return 'hello world!'
+pricerequest = Blueprint('pricerequest', __name__, static_folder='../static/dist', template_folder='../static')
 
 
-@app.route('/pricerequests')
+def redirect_not_authorized():
+	return redirect(url_for('homepage.not_authorized'))
+
+def redirect_register():
+	return redirect(url_for('users.login'))
+
+@pricerequest.route('/pricerequests', methods=['GET', 'POST'])
+@login_required
 def pricerequests():
+
+	if not current_user.active:
+		return redirect_not_authorized()
+
+	if current_user.read_only and request.method == 'POST':
+		flash('Sorry, read only users cannot submit this form.', 'danger')
+		return
 
 	return render_template('pricerequests.html')
 
 
-@app.route('/prices/<id>')
+@pricerequest.route('/prices/<id>')
 def prices(id):
 	print('id is {}'.format(id))
 	product = Product.query.filter_by(productid=id).one()
 	return jsonify({'price': product.price, 'id': id})
 
-@app.route('/products')
+@pricerequest.route('/products')
 def products():
 
 	search_term = request.args.get('q')
@@ -44,7 +46,7 @@ def products():
 	print('results are {}'.format(results))
 	return jsonify(results)
 
-@app.route('/customers')
+@pricerequest.route('/customers')
 def customers():
 
 	search_term = request.args.get('q')
@@ -58,7 +60,7 @@ def customers():
 	print('results are {}'.format(results))
 	return jsonify(results)
 
-@app.route('/pricerequeststatuses')
+@pricerequest.route('/pricerequeststatuses')
 def price_request_statues():
 
 	query_results = PriceRequestStatus.query.all()
@@ -66,11 +68,3 @@ def price_request_statues():
 		'reviewed': status.reviewed} for status in query_results]
 
 	return jsonify(results)
-
-
-if __name__ == '__main__':
-	with app.app_context():
-		db.drop_all()
-		db.create_all()
-		create_data(Category, Product, Customer, db)
-	app.run(debug=True)
