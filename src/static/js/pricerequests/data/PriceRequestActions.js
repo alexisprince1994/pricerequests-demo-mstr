@@ -1,37 +1,45 @@
-import dispatcher from './pricerequestdispatcher'
+import PriceRequestDispatcher from './PriceRequestDispatcher'
 
-export function updateCustomer (id, label) {
-  dispatcher.dispatch({
+export function updateCustomer (id, label, fromDropdown) {
+  PriceRequestDispatcher.dispatch({
     actionType: 'UPDATE_CUSTOMER',
     id: id,
-    label: label
+    label: label,
+    fromDropdown: fromDropdown
+  })
+}
+
+export function customerBlurred () {
+  PriceRequestDispatcher.dispatch({
+    actionType: 'CUSTOMER_BLURRED',
+    giveFeedback: true
   })
 }
 
 export function updateProductName (id, label) {
-  dispatcher.dispatch({
+  PriceRequestDispatcher.dispatch({
     actionType: 'UPDATE_PRODUCT',
     'id': id,
-    label: 'label'
+    label: label
   })
 }
 
 export function updateProductRequestedUnits (units) {
-  dispatcher.dispatch({
-    actionType: 'UPDATE_PRODUCT_REQUESTED_UNITS',
+  PriceRequestDispatcher.dispatch({
+    actionType: 'UPDATE_REQUESTED_UNITS',
     units: units
   })
 }
 
 export function updateRequestReason (text) {
-  dispatcher.dispatch({
+  PriceRequestDispatcher.dispatch({
     actionType: 'UPDATE_REQUEST_REASON',
     text: text
   })
 }
 
 export function updateDraft (checked) {
-  dispatcher.dispatch({
+  PriceRequestDispatcher.dispatch({
     actionType: 'UPDATE_DRAFT',
     checked: checked
   })

@@ -3,6 +3,7 @@ import React from 'react'
 import Product from './pricerequests/product'
 import Customer from './pricerequests/customer'
 import RequestReason from './pricerequests/requestreason'
+
 export default class App extends React.Component {
   constructor (props) {
     super(props)
@@ -14,9 +15,9 @@ export default class App extends React.Component {
     event.preventDefault()
   }
   render () {
-  	const borderStyle = {
-  		border: '1px solid #cecece'
-  	}
+    const borderStyle = {
+      border: '1px solid #cecece'
+    }
 
     return <div>
       <div className='container'>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { AsyncTypeahead } from 'react-bootstrap-typeahead'
-import * as PriceRequestActions from './data/pricerequestactions'
-import PriceRequestStore from './data/pricerequeststore'
+import * as PriceRequestActions from './data/PriceRequestActions'
+import PriceRequestStore from './data/PriceRequestStore'
 
 class Customer extends Component {
   constructor (props) {
@@ -10,22 +10,20 @@ class Customer extends Component {
 
     this.handleBlur = this.handleBlur.bind(this)
     this.onSelect = this.onSelect.bind(this)
+
     this.reloadCustomer = this.reloadCustomer.bind(this)
-    this.updateCustomer = this.updateCustomer.bind(this)
+    this.onInputChange = this.onInputChange.bind(this)
 
     // Other Expected Props
     // 1) validate(id, value)
     // 2) onChange(id, value)
 
-    this.state = {
-      'touched': false,
-      'giveFeedback': this.props.formSubmitted,
-      'isLoading': false,
-      'feedback': null
-    }
+    const customerDetails = PriceRequestStore.getCustomer()
+    const defaultLoading = {isLoading: false}
+    this.state = Object.assign({}, customerDetails, defaultLoading)
   }
 
-  componentWillMount () {
+  componentDidMount () {
     PriceRequestStore.on('change', this.reloadCustomer)
   }
 
@@ -33,27 +31,27 @@ class Customer extends Component {
     PriceRequestStore.removeListener('change', this.reloadCustomer)
   }
 
-  updateCustomer (selected) {
-    const selectedObj = selected[0]
-
-    PriceRequestActions.updateCustomer(selectedObj.id, selectedObj.label)
+  onInputChange (label) {
+    PriceRequestActions.updateCustomer(null, label, false)
   }
 
   reloadCustomer () {
-    this.setState({
-      selected: PriceRequestStore.getCustomer()
-    }, () => this.buildFeedback())
+    // console.log('PriceRequestStore.getCustomer() is ', PriceRequestStore.getCustomer())
+    this.setState(PriceRequestStore.getCustomer(),
+      () => this.buildFeedback())
   }
 
   buildFeedback () {
     let feedback
 
-    if (this.state.touched || this.state.giveFeedback) {
+    if (this.state.giveFeedback) {
       if (this.state.selected) {
-        // Does a logic check to see if its null because null and
-        // false-y should be handled differently... unfortunately.
         this.setState({
-          feedback: !!(this.state.selected && this.state.selected)
+          feedback: true
+        })
+      } else {
+        this.setState({
+          feedback: false
         })
       }
     } else {
@@ -67,26 +65,24 @@ class Customer extends Component {
     // Needing to use buildFeedback as a callback to make sure
     // we wait until the async call of setState is complete.
     console.log('onSelect from customer shows selected is ', selected)
-    this.updateCustomer(selected)
-    // this.buildFeedback()
-    // this.setState({selected}, () => this.buildFeedback())
+    if (selected.length !== 0) {
+      const selectedObj = selected[0]
+      PriceRequestActions.updateCustomer(selectedObj.id, selectedObj.label, true)
+    }
   }
 
   handleBlur (event) {
     // Needing to use buildFeedback as a callback to make sure
     // we wait until the async call of setState is complete.
-    this.setState({
-      'touched': true,
-      'giveFeedback': true
-    }, () => this.buildFeedback())
+    PriceRequestActions.customerBlurred()
   }
 
   // isInvalid={(typeof (this.state.feedback) === 'object') ? undefined : true}
   render () {
-    const { feedback } = this.state
-    const { feedbackClassName } = this.state
-    const { touched } = this.state
-    const { giveFeedback } = this.state
+    const { giveFeedback, feedbackType, feedbackMessage } = this.state
+    const goodFeedback = (feedbackType === 1)
+    const badFeedback = (feedbackType === -1 ? true : null)
+
     return (
       <div className={this.props.className}>
         <label htmlFor='customerName'>
@@ -95,13 +91,14 @@ class Customer extends Component {
         <div className='form-group row'>
           <AsyncTypeahead
             className='col-9 col-md-offset-4'
+            onInputChange={this.onInputChange}
             isLoading={this.state.isLoading}
             onBlur={this.handleBlur}
             onChange={this.onSelect}
-            isInvalid={(!feedback && (touched || giveFeedback)) ? true : null}
-            isValid={this.state.feedback}
+            isValid={goodFeedback}
+            isInvalid={badFeedback}
             options={this.state.options}
-            selected={this.state.selected}
+
             onSearch={query => {
               this.setState({isLoading: true})
               fetch(`http://127.0.0.1:5000/customers?q=${query}`)
