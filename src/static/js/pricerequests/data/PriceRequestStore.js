@@ -98,6 +98,7 @@ class PriceRequestStore extends EventEmitter {
     this.customer.label = label
     this.customer.feedback.giveFeedback = true
     this.customer.feedback.feedbackType = (fromDropdown ? 1 : -1)
+    this.customer.feedback.feedbackMessage = (fromDropdown ? '' : 'Please select a customer option from the dropdown.')
 
     // if (label) {
     //   this.customer.selected = [{id: this.customer.id, 'label': this.customer.label}]
@@ -115,18 +116,13 @@ class PriceRequestStore extends EventEmitter {
   getCustomer () {
     console.log('customerId from store is ', this.customer.id)
 
-    const regularOutput = {
+    return {
       id: this.customer.id,
       label: this.customer.label,
       giveFeedback: this.customer.feedback.giveFeedback,
       feedbackType: this.customer.feedback.feedbackType,
       feedbackMessage: this.customer.feedback.feedbackMessage
     }
-
-    if (this.customer.selected) {
-      regularOutput.selected = this.customer.selected
-    }
-    return regularOutput
   }
 
   handleActions (action) {
