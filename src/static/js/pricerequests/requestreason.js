@@ -28,23 +28,17 @@ class RequestReason extends Component {
   reloadRequestReason () {
     this.setState(PriceRequestStore.getRequestReason())
   }
-  // TO DO
-  // FIGURE OUT WHY THIS DOESN'T ALIGN CORRECTLY.
+
   render () {
     return (
-      <div className='form-group'>
-        <label htmlFor='requestReason'> Reason for Request </label>
-        <div className='form-group-row'>
-          <div className='col-9'>
-            <textarea
-              className='form-control'
-              id='requestReason'
-              rows='3'
-              onChange={this.handleChange}
-              value={this.state.value}
-            />
-          </div>
-        </div>
+      <div className='col-9'>
+        <textarea
+          className='form-control'
+          id='requestReason'
+          rows='3'
+          onChange={this.handleChange}
+          value={this.state.value}
+        />
       </div>
     )
   }

@@ -72,7 +72,10 @@ export default class App extends React.Component {
               </div>
             </div>
             <div className='form-group'>
-              <RequestReason />
+              <label htmlFor='requestReason'> Reason for Request </label>
+              <div className='form-group row'>
+                <RequestReason />
+              </div>
             </div>
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>
