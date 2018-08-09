@@ -1,17 +1,32 @@
 import React, { Component } from 'react'
 
+import * as PriceRequestActions from './data/PriceRequestActions'
+import PriceRequestStore from './data/PriceRequestStore'
+
 class RequestReason extends Component {
   constructor (props) {
     super(props)
-    this.state = {value: this.props.value}
 
-    this.onChange = this.onChange.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.reloadRequestReason = this.reloadRequestReason.bind(this)
+
+    this.state = PriceRequestStore.getRequestReason()
   }
 
-  onChange (event) {
-    this.setState({
-      value: event.target.value
-    })
+  componentDidMount () {
+    PriceRequestStore.on('change', this.reloadRequestReason)
+  }
+
+  componentWillUnmount () {
+    PriceRequestStore.removeListener('change', this.reloadRequestReason)
+  }
+
+  handleChange (event) {
+    PriceRequestActions.updateRequestReason(event.target.value)
+  }
+
+  reloadRequestReason () {
+    this.setState(PriceRequestStore.getRequestReason())
   }
   // TO DO
   // FIGURE OUT WHY THIS DOESN'T ALIGN CORRECTLY.
@@ -21,7 +36,13 @@ class RequestReason extends Component {
         <label htmlFor='requestReason'> Reason for Request </label>
         <div className='form-group-row'>
           <div className='col-9'>
-            <textarea className='form-control' id='requestReason' rows='3' />
+            <textarea
+              className='form-control'
+              id='requestReason'
+              rows='3'
+              onChange={this.handleChange}
+              value={this.state.value}
+            />
           </div>
         </div>
       </div>

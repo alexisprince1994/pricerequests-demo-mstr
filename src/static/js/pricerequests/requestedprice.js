@@ -1,41 +1,44 @@
 import React, { Component } from 'react'
+import * as PriceRequestActions from './data/PriceRequestActions'
+import PriceRequestStore from './data/PriceRequestStore'
 
 class RequestedPrice extends Component {
   constructor (props) {
     super(props)
-    // Props
-
-    // Other Expected Props
-    // 1) validate(id, value)
-    // 2) onChange(id, value)
-
-    this.state = {'touched': false,
-      'giveFeedback': this.props.giveFeedback,
-      'requestedPrice': this.props.requestedPrice
-    }
 
     // Event Binding
     this.handleBlur = this.handleBlur.bind(this)
+    this.reloadRequestedPrice = this.reloadRequestedPrice.bind(this)
+    this.state = PriceRequestStore.getRequestedPrice()
+  }
+
+  componentDidMount () {
+    PriceRequestStore.on('change', this.reloadRequestedPrice)
+  }
+
+  componentWillUnmount () {
+    PriceRequestStore.removeListener('change', this.reloadRequestedPrice)
   }
 
   handleBlur (event) {
-    this.setState({'touched': true, 'giveFeedback': true})
+    PriceRequestActions.requestedPriceBlurred()
   }
 
-  shouldGiveFeedback () {
-    // If they focused through it or the parent component recognizes
-    // that the entire form was submitted without this being touched.
-    return (this.state.touched || this.props.giveFeedback)
+  handleChange (event) {
+    PriceRequestActions.updateRequestedPrice(event.target.value)
+  }
+
+  reloadRequestedPrice () {
+    this.setState(PriceRequestStore.getRequestedPrice())
   }
 
   render () {
     let feedback
     let feedbackClassName
-    const shouldGiveFeedback = (this.state.touched || this.props.giveFeedback)
 
-    if (shouldGiveFeedback) {
-      if (this.props.errorMessage) {
-        feedback = <div className='invalid-feedback'>{this.props.errorMessage}</div>
+    if (this.state.giveFeedback) {
+      if (this.state.feedbackMessage) {
+        feedback = <div className='invalid-feedback'>{this.state.errorMessage}</div>
         feedbackClassName = 'form-control is-invalid'
       } else {
         feedback = <div className='valid-feedback' />
@@ -48,17 +51,14 @@ class RequestedPrice extends Component {
 
     return (
 
-      <div className='col-3'>
-        <label htmlFor='requestedPrice'>
-              Requested Price
-        </label>
+      <div>
         <input type='text'
           className={feedbackClassName}
           id='requestedPrice'
           onBlur={this.handleBlur}
           value={this.state.requestedPrice}
-          placeholder={this.props.normalPrice}
-          onChange={this.props.handleRequestedChange}
+          placeholder={this.state.normalPrice}
+          onChange={this.handleChange}
         />
         {feedback && feedback ? feedback : ''}
       </div>

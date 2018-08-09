@@ -1,41 +1,47 @@
 import React, { Component } from 'react'
+import * as PriceRequestActions from './data/PriceRequestActions'
+import PriceRequestStore from './data/PriceRequestStore'
 
 class RequestedUnits extends Component {
   constructor (props) {
     super(props)
     // Props
 
-    // Other Expected Props
-    // 1) validate(id, value)
-    // 2) onChange(id, value)
-
-    this.state = {'touched': false,
-      'giveFeedback': this.props.giveFeedback,
-      'requestedUnits': this.props.requestedUnits
-    }
-
     // Event Binding
     this.handleBlur = this.handleBlur.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    this.reloadUnits = this.reloadUnits.bind(this)
+
+    // Creating State from store
+    this.state = PriceRequestStore.getRequestedUnits()
+  }
+
+  componentDidMount () {
+    PriceRequestStore.on('change', this.reloadUnits)
+  }
+
+  componentWillUmount () {
+    PriceRequestStore.removeListener('change', this.reloadUnits)
   }
 
   handleBlur (event) {
-    this.setState({'touched': true, 'giveFeedback': true})
-    this.props.handleUnitsBlur(event)
+    PriceRequestActions.requestedUnitsBlurred()
   }
 
-  shouldGiveFeedback () {
-    // If they focused through it or the parent component recognizes
-    // that the entire form was submitted without this being touched.
-    return (this.state.touched || this.props.giveFeedback)
+  handleChange (event) {
+    PriceRequestActions.updateRequestedUnits(event.target.value)
+  }
+
+  reloadUnits () {
+    this.setState(PriceRequestStore.getRequestedUnits())
   }
 
   render () {
     let feedback
     let feedbackClassName
-    const shouldGiveFeedback = (this.state.touched || this.props.giveFeedback)
 
-    if (shouldGiveFeedback) {
-      if (this.props.errorMessage) {
+    if (this.state.giveFeedback) {
+      if (this.state.feedbackMessage) {
         feedback = <div className='invalid-feedback'>{this.props.errorMessage}</div>
         feedbackClassName = 'form-control is-invalid'
       } else {
@@ -49,16 +55,13 @@ class RequestedUnits extends Component {
 
     return (
 
-      <div className='col-3'>
-        <label htmlFor='requestedUnits'>
-              Requested Units
-        </label>
+      <div>
         <input type='text'
           className={feedbackClassName}
           id='requestedUnits'
           onBlur={this.handleBlur}
-          value={this.state.requestedUnits}
-          onChange={this.props.handleUnitsChange}
+          value={this.state.value}
+          onChange={this.handleChange}
         />
         {feedback && feedback ? feedback : ''}
       </div>

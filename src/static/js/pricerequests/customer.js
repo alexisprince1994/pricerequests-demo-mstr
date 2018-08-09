@@ -8,16 +8,13 @@ class Customer extends Component {
     super(props)
     // Props
 
+    // Binding functions
     this.handleBlur = this.handleBlur.bind(this)
     this.onSelect = this.onSelect.bind(this)
-
     this.reloadCustomer = this.reloadCustomer.bind(this)
     this.onInputChange = this.onInputChange.bind(this)
 
-    // Other Expected Props
-    // 1) validate(id, value)
-    // 2) onChange(id, value)
-
+    // Initializing state w/ default values
     const customerDetails = PriceRequestStore.getCustomer()
     const defaultLoading = {isLoading: false}
     this.state = Object.assign({}, customerDetails, defaultLoading)
@@ -36,29 +33,7 @@ class Customer extends Component {
   }
 
   reloadCustomer () {
-    // console.log('PriceRequestStore.getCustomer() is ', PriceRequestStore.getCustomer())
-    this.setState(PriceRequestStore.getCustomer(),
-      () => this.buildFeedback())
-  }
-
-  buildFeedback () {
-    let feedback
-
-    if (this.state.giveFeedback) {
-      if (this.state.selected) {
-        this.setState({
-          feedback: true
-        })
-      } else {
-        this.setState({
-          feedback: false
-        })
-      }
-    } else {
-      this.setState({
-        feedback: null
-      })
-    }
+    this.setState(PriceRequestStore.getCustomer())
   }
 
   onSelect (selected) {
@@ -77,18 +52,13 @@ class Customer extends Component {
     PriceRequestActions.customerBlurred()
   }
 
-  // isInvalid={(typeof (this.state.feedback) === 'object') ? undefined : true}
   render () {
     const { giveFeedback, feedbackType, feedbackMessage } = this.state
-    console.log('feedbackMessage is ', feedbackMessage)
     const goodFeedback = (feedbackType === 1)
     const badFeedback = (feedbackType === -1 ? true : null)
 
     return (
-      <div className={this.props.className}>
-        <label htmlFor='customerName'>
-          Customer Name
-        </label>
+      <div>
         <div className='form-group row'>
           <AsyncTypeahead
             className='col-9 col-md-offset-4'
@@ -99,7 +69,6 @@ class Customer extends Component {
             isValid={goodFeedback}
             isInvalid={badFeedback}
             options={this.state.options}
-
             onSearch={query => {
               this.setState({isLoading: true})
               fetch(`http://127.0.0.1:5000/customers?q=${query}`)
@@ -112,9 +81,7 @@ class Customer extends Component {
             }
             }
           />
-
         </div>
-
         <small id='customerNameHelp' className='form-text text-muted'>
           {(feedbackMessage && feedbackMessage) ? feedbackMessage : ''}
         </small>
