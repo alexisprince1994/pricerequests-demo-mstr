@@ -2,52 +2,71 @@ import PriceRequestActions from './PriceRequestActions'
 import PriceRequestDispatcher from './PriceRequestDispatcher'
 import { EventEmitter } from 'events'
 
+const CUSTOMER_DEFAULT = {
+  'id': null,
+  'label': '',
+  'feedback': {
+    'giveFeedback': false,
+    'feedbackType': null,
+    feedbackMessage: null
+  }
+}
+
+const PRODUCT_DEFAULT = {
+  id: null,
+  label: null,
+  feedback: {
+    giveFeedback: false,
+    feedbackType: null,
+    feedbackMessage: null
+  }
+}
+
+const PRICES_DEFAULT = {
+  normalPrice: {
+    value: ''
+  },
+  requestedPrice: {
+    value: '',
+    feedback: {
+      giveFeedback: false,
+      feedbackType: null,
+      feedbackMessage: null
+    }
+  }
+}
+
+const UNITS_DEFAULT = {
+  value: '',
+  feedback: {
+    giveFeedback: false,
+    feedbackType: null,
+    feedbackMessage: null
+  }
+}
+
+const REQUESTED_REASON_DEFAULT = ''
+const IS_DRAFT_DEFAULT = true
+
 class PriceRequestStore extends EventEmitter {
   constructor () {
     super()
-    this.customer = {
-      'id': null,
-      'label': '',
-      'feedback': {
-        'giveFeedback': false,
-        'feedbackType': null,
-        feedbackMessage: null
-      }
-    }
+    this.customer = CUSTOMER_DEFAULT
+    this.product = PRODUCT_DEFAULT
+    this.prices = PRICES_DEFAULT
+    this.units = UNITS_DEFAULT
+    this.requestReason = REQUESTED_REASON_DEFAULT
+    this.isDraft = IS_DRAFT_DEFAULT
+  }
 
-    this.product = {
-      id: null,
-      label: null,
-      feedback: {
-        giveFeedback: false,
-        feedbackType: null,
-        feedbackMessage: null
-      }
-    }
-
-    this.prices = {
-      normalPrice: {
-        value: null
-      },
-      requestedPrice: {
-        value: null,
-        feedback: {
-          giveFeedback: false,
-          feedbackType: null,
-          feedbackMessage: null
-        }
-      }
-    }
-    this.units = {
-      value: '',
-      feedback: {
-        giveFeedback: false,
-        feedbackType: null,
-        feedbackMessage: null
-      }
-    }
-    this.requestReason = ''
-    this.isDraft = true
+  clearForm () {
+    this.customer = CUSTOMER_DEFAULT
+    this.product = PRODUCT_DEFAULT
+    this.prices = PRICES_DEFAULT
+    this.units = UNITS_DEFAULT
+    this.requestReason = REQUESTED_REASON_DEFAULT
+    this.isDraft = IS_DRAFT_DEFAULT
+    this.emit('change')
   }
 
   updateRequestReason (value) {
@@ -166,6 +185,17 @@ class PriceRequestStore extends EventEmitter {
     this.emit('change')
   }
 
+  updateDraft (value) {
+    this.isDraft = value
+    this.emit('change')
+  }
+
+  getIsDraft () {
+    return {
+      value: this.isDraft
+    }
+  }
+
   getRequestReason () {
     return {
       'value': this.requestReason
@@ -242,6 +272,10 @@ class PriceRequestStore extends EventEmitter {
         this.updateRequestedPrice(action.value)
         break
       }
+      case 'UPDATE_DRAFT': {
+        this.updateDraft(action.checked)
+        break
+      }
       case 'UPDATE_PRODUCT': {
         this.updateProduct(action.id, action.label, action.fromDropdown)
         break
@@ -266,8 +300,12 @@ class PriceRequestStore extends EventEmitter {
         this.updateRequestReason(action.value)
         break
       }
+      case 'CLEAR_FORM': {
+        this.clearForm()
+        break
+      }
       default : {
-        console.log('default case called. action was ', action)
+        console.log('default case called. Write a handler. action was ', action)
       }
     }
   }

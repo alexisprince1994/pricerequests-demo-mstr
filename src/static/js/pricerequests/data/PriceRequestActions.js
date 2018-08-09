@@ -93,3 +93,9 @@ export function updateRequestedPrice (value) {
     value
   })
 }
+
+export function clearForm () {
+  PriceRequestDispatcher.dispatch({
+    actionType: 'CLEAR_FORM'
+  })
+}

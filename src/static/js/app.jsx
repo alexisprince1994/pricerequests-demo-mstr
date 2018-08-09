@@ -6,6 +6,8 @@ import RequestReason from './pricerequests/requestreason'
 import RequestedUnits from './pricerequests/requestedunits'
 import RequestedPrice from './pricerequests/requestedprice'
 import NormalPrice from './pricerequests/normalprice'
+import IsDraft from './pricerequests/isdraft'
+import ClearButton from './pricerequests/clearbutton'
 
 export default class App extends React.Component {
   constructor (props) {
@@ -57,7 +59,6 @@ export default class App extends React.Component {
                 </label>
                 <NormalPrice />
               </div>
-
               <div className='col-3'>
                 <label htmlFor='requestedPrice'>
             Requested Price
@@ -77,12 +78,18 @@ export default class App extends React.Component {
                 <RequestReason />
               </div>
             </div>
+            <div className='col'>
+              <IsDraft
+                checked
+              />
+            </div>
+
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>
                 <button className='btn btn-outline-success btn-lg'> Submit </button>
               </div>
               <div className='btn-group mr-2'>
-                <button className='btn btn-outline-info btn-lg'> Clear </button>
+                <ClearButton />
               </div>
             </div>
             <br />
