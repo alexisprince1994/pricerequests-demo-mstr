@@ -3,11 +3,13 @@ import React from 'react'
 import Product from './pricerequests/product'
 import Customer from './pricerequests/customer'
 import RequestReason from './pricerequests/requestreason'
+import RequestedUnits from './pricerequests/requestedunits'
+import RequestedPrice from './pricerequests/requestedprice'
+import NormalPrice from './pricerequests/normalprice'
 
 export default class App extends React.Component {
   constructor (props) {
     super(props)
-
     this.onSubmit = this.onSubmit.bind(this)
   }
 
@@ -19,7 +21,7 @@ export default class App extends React.Component {
       border: '1px solid #cecece'
     }
 
-    return <div>
+    return (<div>
       <div className='container'>
         <br />
         <br />
@@ -28,20 +30,50 @@ export default class App extends React.Component {
         <form>
           <div className='container' style={borderStyle}>
             <br />
-            <Customer
-              id='customerDiv'
-              className='form-group'
-              formSubmitted={false}
-            />
-            <Product
-              id='productDiv'
-              className='form-group'
-              labelValue='Product Name'
-              formSubmitted={false}
-            />
-            <RequestReason
+            <div className='form-group' id='customerDiv'>
+              <label htmlFor='customerDiv'>
+            Customer Name
+              </label>
+              <Customer
+                className='form-group row'
+                formSubmitted={false}
+              />
+            </div>
+            <div className='form-group' id='productDiv'>
+              <label htmlFor='productDiv'>
+            Product Name
+              </label>
+              <Product
+                id='productDiv'
+                className='form-group'
+                labelValue='Product Name'
+                formSubmitted={false}
+              />
+            </div>
+            <div className='form-group row'>
+              <div className='col-3'>
+                <label htmlFor='normalPrice'>
+            Normal Price
+                </label>
+                <NormalPrice />
+              </div>
 
-            />
+              <div className='col-3'>
+                <label htmlFor='requestedPrice'>
+            Requested Price
+                </label>
+                <RequestedPrice />
+              </div>
+              <div className='col-3'>
+                <label htmlFor='requestedUnits'>
+            Requested Units
+                </label>
+                <RequestedUnits />
+              </div>
+            </div>
+            <div className='form-group'>
+              <RequestReason />
+            </div>
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>
                 <button className='btn btn-outline-success btn-lg'> Submit </button>
@@ -56,5 +88,6 @@ export default class App extends React.Component {
         </form>
       </div>
     </div>
+    )
   }
 }
