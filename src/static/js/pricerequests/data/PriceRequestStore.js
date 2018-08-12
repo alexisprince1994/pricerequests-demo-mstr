@@ -7,6 +7,7 @@ const REQUEST_URL = 'http:127.0.0.1:5000/'
 const CUSTOMER_DEFAULT = {
   'id': null,
   'label': '',
+  valid: false,
   'feedback': {
     'giveFeedback': false,
     'feedbackType': null,
@@ -17,6 +18,7 @@ const CUSTOMER_DEFAULT = {
 const PRODUCT_DEFAULT = {
   id: null,
   label: null,
+  valid: false,
   feedback: {
     giveFeedback: false,
     feedbackType: null,
@@ -30,6 +32,7 @@ const PRICES_DEFAULT = {
   },
   requestedPrice: {
     value: '',
+    valid: false,
     feedback: {
       giveFeedback: false,
       feedbackType: null,
@@ -40,6 +43,7 @@ const PRICES_DEFAULT = {
 
 const UNITS_DEFAULT = {
   value: '',
+  valid: false,
   feedback: {
     giveFeedback: false,
     feedbackType: null,
@@ -49,6 +53,12 @@ const UNITS_DEFAULT = {
 
 const REQUESTED_REASON_DEFAULT = ''
 const IS_DRAFT_DEFAULT = true
+const VALIDATION_DEFAULT = {
+  customer: false,
+  product: false,
+  requestedPrice: false,
+  requestedUnits: false
+}
 
 class PriceRequestStore extends EventEmitter {
   constructor () {
@@ -59,15 +69,57 @@ class PriceRequestStore extends EventEmitter {
     this.units = UNITS_DEFAULT
     this.requestReason = REQUESTED_REASON_DEFAULT
     this.isDraft = IS_DRAFT_DEFAULT
+    this.validation = VALIDATION_DEFAULT
+    this.formSubmitted = false
+    this.isValid = false
+  }
+
+  validatePayload (data) {
+    console.log('data to validatePayload is ', data)
+    const invalidated = Object.values(data).filter(val => val !== true)
+    return (!(invalidated.length > 0))
+  }
+
+  createPriceRequest () {
+    const payload = {
+      customerid: this.customer.id,
+      productid: this.product.id,
+      requestedPrice: parseFloat(this.prices.requestedPrice.value),
+      units: parseInt(this.units.value),
+      requestedReason: this.requestReason,
+      isDraft: this.isDraft
+    }
+
+    const isPayloadValidated = this.validatePayload(this.validation)
+
+    if (isPayloadValidated) {
+      this.clearForm()
+      this.isValid = true
+      fetch('/pricerequests', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    } else {
+      this.isValid = false
+    }
+    this.formSubmitted = true
+    this.emit('change')
   }
 
   clearForm () {
+    // Returns the form to its default state
     this.customer = CUSTOMER_DEFAULT
     this.product = PRODUCT_DEFAULT
     this.prices = PRICES_DEFAULT
     this.units = UNITS_DEFAULT
     this.requestReason = REQUESTED_REASON_DEFAULT
     this.isDraft = IS_DRAFT_DEFAULT
+    this.validation = VALIDATION_DEFAULT
+    this.formSubmitted = false
+    this.isValid = false
     this.emit('change')
   }
 
@@ -84,21 +136,23 @@ class PriceRequestStore extends EventEmitter {
     this.product.feedback.feedbackMessage = (fromDropdown
       ? '' : 'Please select a product option from the dropdown.')
 
+    this.validation.product = (!!fromDropdown)
     this.emit('change')
   }
 
   fetchProductPrice (id) {
+    // Fetch's the requested product's price from the server
+    // and passes the return value off to the appropriate handler.
     const handlePrices = this.receiveProductPrice.bind(this)
 
     const priceUrl = 'prices/' + id
-    console.log('price url is ', priceUrl)
+
     fetch(priceUrl)
       .then(res => res.json())
       .then(data => handlePrices(data))
   }
 
   receiveProductPrice (response) {
-    console.log('response from receive is ', response)
     this.prices.normalPrice.value = response.price
     this.emit('change')
   }
@@ -120,6 +174,11 @@ class PriceRequestStore extends EventEmitter {
 
   updateRequestedPrice (value) {
     let feedbackMessage
+    let isValid
+
+    this.formSubmitted = false
+
+    isValid = false
 
     this.price.requestedPrice.value = value
     this.price.requestedPrice.feedback.giveFeedback = true
@@ -133,19 +192,24 @@ class PriceRequestStore extends EventEmitter {
       feedbackMessage = 'A positive non-zero price is required.'
     } else {
       feedbackMessage = null
+      isValid = true
     }
 
     this.price.requestedPrice.feedback.feedbackMessage = feedbackMessage
+    this.validation.requestedPrice = isValid
     this.emit('change')
   }
 
   updateRequestedUnits (value) {
+    this.formSubmitted = false
     this.units.value = value
     this.units.feedback.giveFeedback = true
 
     let feedbackMessage
 
     const feedbackType = (parseInt(value) > 0 ? 1 : -1)
+    this.units.valid = (parseInt(value) > 0)
+    this.validation.requestedUnits = (parseInt(value) > 0)
 
     if (!value) {
       feedbackMessage = 'This field is required.'
@@ -163,30 +227,39 @@ class PriceRequestStore extends EventEmitter {
   }
 
   updateRequestedPrice (value) {
+    this.formSubmitted = false
     this.prices.requestedPrice.value = value
     this.prices.requestedPrice.feedback.giveFeedback = true
     let feedbackType
     let feedbackMessage
+    let isValid
+    isValid = false
     if (!this.prices.normalPrice.value) {
       feedbackType = -1
       feedbackMessage = 'Please select a product.'
     } else {
       feedbackType = (this.prices.requestedPrice.value >= this.prices.normalPrice.value
         ? -1 : 1)
+      isValid = (!(this.prices.requestedPrice.value >= this.prices.normalPrice.value))
       feedbackMessage = (this.prices.requestedPrice.value >= this.prices.normalPrice.value
         ? 'You dont need a special request to pay more or equal than our normal prices.' : '')
     }
 
     this.prices.requestedPrice.feedback.feedbackType = feedbackType
     this.prices.requestedPrice.feedback.feedbackMessage = feedbackMessage
+    this.prices.requestedPrice.valid = isValid
+    this.validation.requestedPrice = isValid
     this.emit('change')
   }
 
   updateCustomer (id, label, fromDropdown) {
+    this.formSubmitted = false
     this.customer.id = id
     this.customer.label = label
     this.customer.feedback.giveFeedback = true
     this.customer.feedback.feedbackType = (fromDropdown ? 1 : -1)
+    this.customer.valid = (!!fromDropdown)
+    this.validation.customer = (!!fromDropdown)
     this.customer.feedback.feedbackMessage = (fromDropdown
       ? '' : 'Please select a customer option from the dropdown.')
 
@@ -253,6 +326,13 @@ class PriceRequestStore extends EventEmitter {
     }
   }
 
+  getFormStatus () {
+    return {
+      isValid: this.validatePayload(this.validation),
+      submitted: this.formSubmitted
+    }
+  }
+
   getNormalPrice () {
     return {
       value: this.prices.normalPrice.value
@@ -261,8 +341,8 @@ class PriceRequestStore extends EventEmitter {
 
   handleActions (action) {
     switch (action.actionType) {
-      case 'SUBMIT' : {
-        this.createPriceRequest(action.data)
+      case 'SUBMIT_FORM' : {
+        this.createPriceRequest()
         break
       }
       case 'UPDATE_CUSTOMER': {

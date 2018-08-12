@@ -8,17 +8,50 @@ import RequestedPrice from './pricerequests/requestedprice'
 import NormalPrice from './pricerequests/normalprice'
 import IsDraft from './pricerequests/isdraft'
 import ClearButton from './pricerequests/clearbutton'
+import SubmitButton from './pricerequests/submitbutton'
+import PriceRequestStore from './pricerequests/data/PriceRequestStore'
 
 export default class App extends React.Component {
   constructor (props) {
     super(props)
     this.onSubmit = this.onSubmit.bind(this)
+    this.onFormValidate = this.onFormValidate.bind(this)
+    this.state = PriceRequestStore.getFormStatus()
   }
 
   onSubmit (event) {
     event.preventDefault()
   }
+
+  componentWillMount () {
+    PriceRequestStore.on('change', this.onFormValidate)
+  }
+
+  componentWillUnmount () {
+    PriceRequestStore.removeListener('change', this.onFormValidate)
+  }
+
+  onFormValidate () {
+    this.setState(PriceRequestStore.getFormStatus())
+  }
+
   render () {
+    let feedback
+
+    if (this.state.submitted) {
+      if (this.state.isValid) {
+        feedback =
+          <div className='alert alert-success' title='Click to dismiss'>
+            <strong>Success!</strong> Successfully saved the form.
+          </div>
+      } else {
+        feedback =
+          <div className='alert alert-danger' title='Click to dismiss'>
+            <strong>Error!</strong> Please fill out all fields correctly and try again
+          </div>
+      }
+    }
+
     const borderStyle = {
       border: '1px solid #cecece'
     }
@@ -29,6 +62,10 @@ export default class App extends React.Component {
         <br />
         <h1> Special Pricing Consideration Form </h1>
         <br />
+        <div className='container'>
+          {feedback && feedback ? feedback : ''}
+        </div>
+
         <form>
           <div className='container' style={borderStyle}>
             <br />
@@ -81,7 +118,8 @@ export default class App extends React.Component {
 
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>
-                <button className='btn btn-outline-success btn-lg'> Submit </button>
+                <SubmitButton />
+
               </div>
               <div className='btn-group mr-2'>
                 <ClearButton />

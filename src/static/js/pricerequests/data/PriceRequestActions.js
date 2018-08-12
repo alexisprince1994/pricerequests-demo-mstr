@@ -9,6 +9,12 @@ export function updateCustomer (id, label, fromDropdown) {
   })
 }
 
+export function submitForm () {
+  PriceRequestDispatcher.dispatch({
+    actionType: 'SUBMIT_FORM'
+  })
+}
+
 export function customerBlurred () {
   PriceRequestDispatcher.dispatch({
     actionType: 'CUSTOMER_BLURRED',
