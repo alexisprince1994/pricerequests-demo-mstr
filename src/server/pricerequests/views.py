@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
-from server.models import Customer, Product, PriceRequestStatus
+from server.models import db, Customer, Product, PriceRequestStatus, PriceRequest
 from flask_login import current_user, login_required
 
 pricerequest = Blueprint('pricerequest', __name__, static_folder='../static/dist', template_folder='../static')
@@ -22,16 +22,33 @@ def pricerequests():
 		flash('Sorry, read only users cannot submit this form.', 'danger')
 		return
 
+	if request.method == 'POST':
+		data = request.get_json()
+		try:
+			pr = PriceRequest(customerid=data.get('customerid'), productid=data.get('productid'),
+				statuscode='SUBMITTED', requestedprice=data.get('requestedPrice'), 
+				requestedunits=data.get('units'), requestreason=data.get('requestReason'))
+			db.session.add(pr)
+			db.session.commit()
+			print('The followingg data was sent to this route : {}'.format(request.get_json()))
+			return jsonify({'id': pr.pricerequestid, 'message': 'Submitted successfully'})
+		except:
+			db.session.rollback()
+			return jsonify({'id': None, 'message': 'Error creating price request.'})
+			
+
 	return render_template('pricerequests.html')
 
 
 @pricerequest.route('/prices/<id>')
+@login_required
 def prices(id):
 	print('id is {}'.format(id))
 	product = Product.query.filter_by(productid=id).one()
 	return jsonify({'price': product.price, 'id': id})
 
 @pricerequest.route('/products')
+@login_required
 def products():
 
 	search_term = request.args.get('q')
@@ -47,6 +64,7 @@ def products():
 	return jsonify(results)
 
 @pricerequest.route('/customers')
+@login_required
 def customers():
 
 	search_term = request.args.get('q')
@@ -61,6 +79,7 @@ def customers():
 	return jsonify(results)
 
 @pricerequest.route('/pricerequeststatuses')
+@login_required
 def price_request_statues():
 
 	query_results = PriceRequestStatus.query.all()

@@ -51,15 +51,15 @@ def post():
 	id = data.get('id')
 
 	if id is None:
-		return make_response(error_message='price request id was invalid', 400)
+		return make_response(400, error_message='price request id was invalid')
 		
 	price_request = PriceRequest.query.get(id)
-		if price_request is None:
-			return make_response(
-				error_message='price request not found for id {}'.format(id), 400)
-		else:
-			price_request.statuscode = action
-			db.session.add(price_request)
-			db.session.commit()
-			return make_response(200)
+	if price_request is None:
+		return make_response(400,
+			error_message='price request not found for id {}'.format(id))
+	else:
+		price_request.statuscode = action
+		db.session.add(price_request)
+		db.session.commit()
+		return make_response(200)
 		

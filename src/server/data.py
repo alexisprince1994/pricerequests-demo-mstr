@@ -83,7 +83,20 @@ def create_customers(Customer, db):
 	db.session.commit()
 
 
-def create_data(Category, Product, Customer, db):
+def create_statuses(PriceRequestStatus, db):
+
+	statuses = ['SUBMITTED', 'APPROVED', 'DENIED']
+	descriptions = ['SUBMITTED AND NOT REVIEWED', 
+	'REVIEWED AND APPROVED', 'REVIEWED AND DENIED']
+	reviewed = [False, True, True]
+
+	for status, description, review in zip(statuses, descriptions, reviewed):
+		db.session.add(PriceRequestStatus(statuscode=status,
+			statusdescription=description, reviewed=review))
+
+	db.session.commit()
+
+def create_data(Category, Product, Customer, db, PriceRequestStatus):
 
 	create_customers(Customer, db)
 	create_products(Product, db)
