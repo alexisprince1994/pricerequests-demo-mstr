@@ -69,15 +69,9 @@ export function receiveProductPrice (response) {
 
 export function getProductPrice (id) {
   PriceRequestDispatcher.dispatch({
-    actionType: 'GET_PRODUCT_PRICE',
+    actionType: 'FETCH_PRODUCT_PRICE',
     id
   })
-
-  console.log('getProductPrice is called with id ', id)
-
-  fetch(`http://127.0.0.1:5000/prices/${id}`)
-    .then(res => res.json())
-    .then(json => receiveProductPrice(json))
 }
 
 export function requestedPriceBlurred () {

@@ -100,20 +100,30 @@ class PriceRequest(db.Model):
 
 	__tablename__ = 'pricerequests'
 	pricerequestid = pk(db)
-	customerid = db.Column(db.Integer, db.ForeignKey('customers.customerid'), nullable=False, index=True)
-	productid = db.Column(db.Integer, db.ForeignKey('products.productid'), nullable=False)
-	statuscode = db.Column(db.String(20), db.ForeignKey('pricerequeststatuses.statuscode'), nullable=False)
+	customerid = db.Column(db.Integer, 
+		db.ForeignKey('customers.customerid'), nullable=False, index=True)
+	productid = db.Column(db.Integer, 
+		db.ForeignKey('products.productid'), nullable=False)
+	statuscode = db.Column(db.String(20), 
+		db.ForeignKey('pricerequeststatuses.statuscode'), nullable=False)
 	requestedprice = db.Column(db.Float, nullable=False)
-	submittimestamp = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
+	requestedunits = db.Column(db.Integer, nullable=False)
+	requestreason = db.Column(db.String(255))
+	submittimestamp = db.Column(db.DateTime(timezone=True), 
+		server_default=db.func.now())
 	ludate = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), 
 		onupdate=db.func.now())
 
-	product = db.relationship('Product', backref=db.backref('pricerequests'), lazy=True)
-	customer = db.relationship('Customer', backref=db.backref('pricerequests'), lazy=True)
-	status = db.relationship('PriceRequestStatus', backref=db.backref('pricerequests'), lazy=True)
+	product = db.relationship('Product', 
+		backref=db.backref('pricerequests'), lazy=True)
+	customer = db.relationship('Customer', 
+		backref=db.backref('pricerequests'), lazy=True)
+	status = db.relationship('PriceRequestStatus', 
+		backref=db.backref('pricerequests'), lazy=True)
 
 
 	def __repr__(self):
-		return '<PriceRequst %r %r %r %r %r %r>' % (self.customerid, self.productid, self.statuscode,
-			requestedprice, submittimestamp, ludate)
+		return '<PriceRequst %r %r %r %r %r %r>' % (self.customerid, 
+			self.productid, self.statuscode, self.requestedprice, 
+			self.submittimestamp, self.ludate)
 

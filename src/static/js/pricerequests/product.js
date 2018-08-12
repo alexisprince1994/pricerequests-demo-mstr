@@ -85,7 +85,7 @@ class Product extends Component {
                 .then(json => this.setState({
                   isLoading: false,
                   options: json
-                }, () => console.log(json))
+                })
                 )
             }
             }

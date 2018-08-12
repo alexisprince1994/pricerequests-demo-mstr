@@ -22,9 +22,11 @@ def create_app(config_object):
 	from server.user.views import users
 	from server.pricerequests.views import pricerequest
 	from server.homepage.views import homepage
+	from server.api.views import api
 	app.register_blueprint(users)
 	app.register_blueprint(pricerequest)
 	app.register_blueprint(homepage)
+	app.register_blueprint(api)
 	login_manager.login_view = 'users.login'
 
 	return app

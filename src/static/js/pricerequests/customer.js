@@ -53,9 +53,15 @@ class Customer extends Component {
   }
 
   render () {
-    const { giveFeedback, feedbackType, feedbackMessage } = this.state
-    const goodFeedback = (feedbackType === 1)
-    const badFeedback = (feedbackType === -1 ? true : null)
+    const { giveFeedback, feedbackType } = this.state
+    let { feedbackMessage } = this.state
+    let goodFeedback = (feedbackType === 1)
+    let badFeedback = (feedbackType === -1 ? true : null)
+    const { isDraft } = this.props
+
+    goodFeedback = (!isDraft ? goodFeedback : null)
+    badFeedback = (!isDraft ? badFeedback : null)
+    feedbackMessage = (!isDraft ? feedbackMessage : null)
 
     return (
       <div>

@@ -78,11 +78,6 @@ export default class App extends React.Component {
                 <RequestReason />
               </div>
             </div>
-            <div className='col'>
-              <IsDraft
-                checked
-              />
-            </div>
 
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>

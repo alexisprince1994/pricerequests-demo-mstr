@@ -2,6 +2,8 @@ import PriceRequestActions from './PriceRequestActions'
 import PriceRequestDispatcher from './PriceRequestDispatcher'
 import { EventEmitter } from 'events'
 
+const REQUEST_URL = 'http:127.0.0.1:5000/'
+
 const CUSTOMER_DEFAULT = {
   'id': null,
   'label': '',
@@ -85,7 +87,18 @@ class PriceRequestStore extends EventEmitter {
     this.emit('change')
   }
 
+  fetchProductPrice (id) {
+    const handlePrices = this.receiveProductPrice.bind(this)
+
+    const priceUrl = 'prices/' + id
+    console.log('price url is ', priceUrl)
+    fetch(priceUrl)
+      .then(res => res.json())
+      .then(data => handlePrices(data))
+  }
+
   receiveProductPrice (response) {
+    console.log('response from receive is ', response)
     this.prices.normalPrice.value = response.price
     this.emit('change')
   }
@@ -284,8 +297,8 @@ class PriceRequestStore extends EventEmitter {
         this.updateProductBlur(action.giveFeedback)
         break
       }
-      case 'GET_PRODUCT_PRICE' : {
-        this.receiveProductPrice(action.id)
+      case 'FETCH_PRODUCT_PRICE' : {
+        this.fetchProductPrice(action.id)
         break
       }
       case 'RECEIVE_PRODUCT_PRICE': {
