@@ -63,10 +63,10 @@ const VALIDATION_DEFAULT = {
 class PriceRequestStore extends EventEmitter {
   constructor () {
     super()
-    this.customer = CUSTOMER_DEFAULT
-    this.product = PRODUCT_DEFAULT
-    this.prices = PRICES_DEFAULT
-    this.units = UNITS_DEFAULT
+    this.customer = Object.assign({}, CUSTOMER_DEFAULT)
+    this.product = Object.assign({}, PRODUCT_DEFAULT)
+    this.prices = Object.assign({}, PRICES_DEFAULT)
+    this.units = Object.assign({}, UNITS_DEFAULT)
     this.requestReason = REQUESTED_REASON_DEFAULT
     this.isDraft = IS_DRAFT_DEFAULT
     this.validation = VALIDATION_DEFAULT
@@ -75,7 +75,6 @@ class PriceRequestStore extends EventEmitter {
   }
 
   validatePayload (data) {
-    console.log('data to validatePayload is ', data)
     const invalidated = Object.values(data).filter(val => val !== true)
     return (!(invalidated.length > 0))
   }
@@ -111,10 +110,10 @@ class PriceRequestStore extends EventEmitter {
 
   clearForm () {
     // Returns the form to its default state
-    this.customer = CUSTOMER_DEFAULT
-    this.product = PRODUCT_DEFAULT
-    this.prices = PRICES_DEFAULT
-    this.units = UNITS_DEFAULT
+    this.customer = Object.assign({}, CUSTOMER_DEFAULT)
+    this.product = Object.assign({}, PRODUCT_DEFAULT)
+    this.prices = Object.assign({}, PRICES_DEFAULT)
+    this.units = Object.assign({}, UNITS_DEFAULT)
     this.requestReason = REQUESTED_REASON_DEFAULT
     this.isDraft = IS_DRAFT_DEFAULT
     this.validation = VALIDATION_DEFAULT
