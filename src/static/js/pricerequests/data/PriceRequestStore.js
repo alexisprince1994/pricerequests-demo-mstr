@@ -85,8 +85,7 @@ class PriceRequestStore extends EventEmitter {
       productid: this.product.id,
       requestedPrice: parseFloat(this.prices.requestedPrice.value),
       units: parseInt(this.units.value),
-      requestedReason: this.requestReason,
-      isDraft: this.isDraft
+      requestedReason: this.requestReason
     }
 
     const isPayloadValidated = this.validatePayload(this.validation)
@@ -328,7 +327,12 @@ class PriceRequestStore extends EventEmitter {
   getFormStatus () {
     return {
       isValid: this.validatePayload(this.validation),
-      submitted: this.formSubmitted
+      submitted: this.formSubmitted,
+      customerid: this.customer.id,
+      requestedPrice: this.prices.requestedPrice.value,
+      requestedUnits: this.units.value,
+      productid: this.product.id,
+      requestReason: this.requestReason
     }
   }
 

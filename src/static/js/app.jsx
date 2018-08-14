@@ -10,17 +10,20 @@ import IsDraft from './pricerequests/isdraft'
 import ClearButton from './pricerequests/clearbutton'
 import SubmitButton from './pricerequests/submitbutton'
 import PriceRequestStore from './pricerequests/data/PriceRequestStore'
+import * as PriceRequestActions from './pricerequests/data/PriceRequestActions'
 
 export default class App extends React.Component {
   constructor (props) {
     super(props)
-    this.onSubmit = this.onSubmit.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
     this.onFormValidate = this.onFormValidate.bind(this)
     this.state = PriceRequestStore.getFormStatus()
   }
 
-  onSubmit (event) {
+  handleSubmit (event) {
     event.preventDefault()
+    console.log('this.state is ', this.state)
+    PriceRequestActions.submitForm()
   }
 
   componentWillMount () {
@@ -118,8 +121,9 @@ export default class App extends React.Component {
 
             <div className='btn-toolbar'>
               <div className='btn-group mr-2'>
-                <SubmitButton />
-
+                <SubmitButton
+                  handleSubmit={this.handleSubmit}
+                />
               </div>
               <div className='btn-group mr-2'>
                 <ClearButton />
