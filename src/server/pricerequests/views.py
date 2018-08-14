@@ -24,6 +24,7 @@ def pricerequests():
 
 	if request.method == 'POST':
 		data = request.get_json()
+		print('data from pricerequest route is {}'.format(data))
 		try:
 			pr = PriceRequest(customerid=data.get('customerid'), productid=data.get('productid'),
 				statuscode='SUBMITTED', requestedprice=data.get('requestedPrice'), 
@@ -32,7 +33,8 @@ def pricerequests():
 			db.session.commit()
 			print('The followingg data was sent to this route : {}'.format(request.get_json()))
 			return jsonify({'id': pr.pricerequestid, 'message': 'Submitted successfully'})
-		except:
+		except Exception as e:
+			print('exception hit. rollback caused. {}'.format(e))
 			db.session.rollback()
 			return jsonify({'id': None, 'message': 'Error creating price request.'})
 			
