@@ -60,18 +60,42 @@ def price_request_to_json(price_request):
 
 	return data_out
 
-@pricerequest.route('/pricerequests/get', methods=['GET', 'POST'])
+@pricerequest.route('/pricerequests/get')
 def get_requests():
-	if request.method == 'GET':
-		price_requests = (PriceRequest
-			.query
-			.join(Customer)
-			.join(Product)
-			.order_by(desc(PriceRequest.ludate)).all())
-
-		print('there are {} price requests'.format(len(price_requests)))
 	
-		return jsonify([price_request_to_json(price_request) for price_request in price_requests])
+	price_requests = (PriceRequest
+		.query
+		.join(Customer)
+		.join(Product)
+		.order_by(desc(PriceRequest.ludate)).all())
+
+	print('there are {} price requests'.format(len(price_requests)))
+
+	return jsonify([price_request_to_json(price_request) for price_request in price_requests])
+
+@pricerequest.route('/pricerequests/statuschange', methods=['POST'])
+def statuschange():
+
+	data = request.get_json()
+	pr_id, status = data.get('id'), data.get('status')
+
+	print('pr_id is {} and status is {}'.format(pr_id, status))
+	
+	pr = PriceRequest.query.filter_by(pricerequestid=pr_id).first()
+	if not pr:
+		return jsonify({'error': 
+			'price request not found. Please refresh the browser and try again.'})
+
+	try:
+		pr.statuscode = status
+		db.session.add(pr)
+		db.session.commit()
+	except Exception as e:
+		db.session.rollback()
+		return jsonify({'error': str(e)})
+
+	return jsonify({'id': pr.pricerequestid, 'error': None, 'statuscode': pr.statuscode})
+
 
 @pricerequest.route('/pricerequests/view', methods=['GET', 'POST'])
 def view():
