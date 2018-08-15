@@ -1,8 +1,11 @@
 from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
 from server.models import db, Customer, Product, PriceRequestStatus, PriceRequest
 from flask_login import current_user, login_required
+from sqlalchemy import desc
+import datetime
 
-pricerequest = Blueprint('pricerequest', __name__, static_folder='../static/dist', template_folder='../static')
+pricerequest = Blueprint('pricerequest', __name__, 
+	static_folder='../static/dist', template_folder='../static')
 
 
 def redirect_not_authorized():
@@ -41,6 +44,40 @@ def pricerequests():
 
 	return render_template('pricerequests.html')
 
+def price_request_to_json(price_request):
+
+	data_out = {}
+	data_out['customer_name'] = price_request.customer.customername
+	data_out['product_name'] = price_request.product.productname
+	data_out['current_price'] = price_request.product.price
+	data_out['cost'] = price_request.product.cost
+	data_out['requested_price'] = price_request.requestedprice
+	data_out['requested_units'] = price_request.requestedunits
+	data_out['request_reason'] = price_request.requestreason
+	data_out['id'] = price_request.pricerequestid
+	data_out['statuscode'] = price_request.statuscode
+	data_out['request_date'] = price_request.submittimestamp.date().strftime('%m/%d/%Y')
+
+	return data_out
+
+@pricerequest.route('/pricerequests/get', methods=['GET', 'POST'])
+def get_requests():
+	if request.method == 'GET':
+		price_requests = (PriceRequest
+			.query
+			.join(Customer)
+			.join(Product)
+			.order_by(desc(PriceRequest.ludate)).all())
+
+		print('there are {} price requests'.format(len(price_requests)))
+	
+		return jsonify([price_request_to_json(price_request) for price_request in price_requests])
+
+@pricerequest.route('/pricerequests/view', methods=['GET', 'POST'])
+def view():
+
+	return render_template('viewpricerequests.html')
+	
 
 @pricerequest.route('/prices/<id>')
 @login_required
