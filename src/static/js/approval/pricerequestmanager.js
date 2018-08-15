@@ -14,74 +14,74 @@ class PriceRequestManager extends Component {
   }
 
   componentWillMount () {
-  	ApprovalStore.on('change', this.reloadRequests)
+    ApprovalStore.on('change', this.reloadRequests)
   }
 
   componentWillUnmount () {
-  	ApprovalStore.removeListener('change', this.reloadRequests)
+    ApprovalStore.removeListener('change', this.reloadRequests)
   }
 
   reloadRequests () {
-  	this.setState(ApprovalStore.getRequests())
+    this.setState(ApprovalStore.getRequests())
   }
 
   filterRequests (event) {
-	ApprovalActions.filterRequests(event.target.value)
+    ApprovalActions.filterRequests(event.target.value)
   }
 
   initialDataLoad () {
-  	ApprovalActions.initialRequestLoad()
+    ApprovalActions.initialRequestLoad()
   }
 
-  
   render () {
     const selectOptions = []
     this.state.filterOptions.map((opt, indx) =>
       selectOptions.push(<option key={indx}>{opt}</option>))
 
     return (
-    	<div>
-      <div className='container'>
-        <div className='row'>
-          <div className='col' />
-          <div className='col' />
-          <div className='col' />
-          <div className='col' />
-          <div className='col'>
-            <div className='form-group'>
-              <label htmlFor='requestFilter'>Filter Status</label>
-              <select 
-              className='form-control' 
-              id='requestFilter' 
-              onChange={this.filterRequests}
-              >
-                {selectOptions}
-              </select>
+      <div>
+        <div className='container'>
+          <div className='row'>
+            <div className='col' />
+            <div className='col' />
+            <div className='col' />
+            <div className='col' />
+            <div className='col'>
+              <div className='form-group'>
+                <label htmlFor='requestFilter'>Filter Status</label>
+                <select
+                  className='form-control'
+                  id='requestFilter'
+                  onChange={this.filterRequests}
+                >
+                  {selectOptions}
+                </select>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className='container'>
-      <div id={this.parentId}>
-      {this.state.filteredRequests.map(obj =>
-          <PriceRequest
-            key={obj.id.toString()}
-            id={obj.id}
-            product={obj.product}
-            customer={obj.customer}
-            expanded={obj.expanded}
-            parentId={obj.parentId}
-            bodyMessage={obj.bodyMessage}
-            handleClick={obj.handleClick}
-            status={obj.status}
-            requestedUnits={obj.requestedUnits}
-            cost={obj.cost}
-            currentPrice={obj.currentPrice}
-            requestedPrice={obj.requestedPrice}
-            requestDate={obj.requestDate}
-          />
+        <div className='container'>
+          <div id={this.parentId}>
+            {this.state.filteredRequests.map(obj =>
+              <PriceRequest
+                key={obj.id.toString()}
+                id={obj.id}
+                product={obj.product}
+                customer={obj.customer}
+                expanded={obj.expanded}
+                parentId={this.parentId}
+                bodyMessage={obj.bodyMessage}
+                handleClick={this.handleClick}
+                status={obj.status}
+                requestedUnits={obj.requestedUnits}
+                cost={obj.cost}
+                currentPrice={obj.currentPrice}
+                requestedPrice={obj.requestedPrice}
+                requestDate={obj.requestDate}
+              />
             )}
-      </div>
+          </div>
+        </div>
       </div>
     )
   }

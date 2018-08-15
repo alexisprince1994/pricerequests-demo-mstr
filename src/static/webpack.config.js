@@ -1,9 +1,11 @@
 const webpack = require('webpack')
 const config = {
-  entry: __dirname + '/js/index.jsx',
+  entry: {
+    priceRequest: __dirname + '/js/index.jsx',
+    viewPriceRequest: __dirname + '/js/viewRequests.jsx'
+  },
   output: {
-    path: __dirname + '/dist',
-    filename: 'bundle.js'
+    filename: './[name]-bundle.js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.css']
