@@ -15,6 +15,7 @@ class PriceRequestManager extends Component {
 
   componentWillMount () {
     ApprovalStore.on('change', this.reloadRequests)
+    this.initialDataLoad()
   }
 
   componentWillUnmount () {
@@ -63,15 +64,14 @@ class PriceRequestManager extends Component {
         <div className='container'>
           <div id={this.parentId}>
             {this.state.filteredRequests.map(obj =>
-              <PriceRequest
+              <PriceRequestHeader
                 key={obj.id.toString()}
                 id={obj.id}
-                product={obj.product}
+                productName={obj.product}
                 customer={obj.customer}
                 expanded={obj.expanded}
                 parentId={this.parentId}
                 bodyMessage={obj.bodyMessage}
-                handleClick={this.handleClick}
                 status={obj.status}
                 requestedUnits={obj.requestedUnits}
                 cost={obj.cost}

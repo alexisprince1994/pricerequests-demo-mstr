@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 
 class PriceRequestDetail extends Component {
   formatFloat (x, precision) {
-    console.log('requiredPrecision with input x', x, ' is ', requiredPrecision)
     const requiredPrecision = x.toFixed(precision)
 
     return parseFloat(requiredPrecision).toLocaleString('en')

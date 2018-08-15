@@ -6,7 +6,6 @@ class PriceRequestHeader extends Component {
   constructor (props) {
     super(props)
 
-    this.handleClick = this.handleClick.bind(this)
     this.approveRequest = this.approveRequest.bind(this)
     this.denyRequest = this.denyRequest.bind(this)
     this.state = {'expanded': this.props.expanded || false}
@@ -18,13 +17,6 @@ class PriceRequestHeader extends Component {
 
   denyRequest (event) {
     ApprovalActions.denyRequest(this.props.id)
-  }
-
-  handleClick (event) {
-    event.preventDefault()
-    this.setState({
-      expanded: !this.state.expanded
-    })
   }
 
   render () {
@@ -51,7 +43,6 @@ class PriceRequestHeader extends Component {
                   data-target={target}
                   aria-expanded={this.state.expanded}
                   aria-controls={collapseId}
-                  onClick={this.handleClick}
                 >
                   {buttonText}
                 </button>

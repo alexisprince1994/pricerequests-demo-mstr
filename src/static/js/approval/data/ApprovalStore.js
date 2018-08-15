@@ -20,8 +20,17 @@ class ApprovalStore extends EventEmitter {
     }
   }
 
+  approvePriceRequest (id) {
+    console.log('approve has been called')
+  }
+
+  denyPriceRequest (id) {
+    console.log('deny has been called')
+  }
+
   populateRequests (data) {
-    dataOut = []
+    const dataOut = []
+
     data.forEach(d => {
       dataOut.push({
         id: d.id,
@@ -36,7 +45,9 @@ class ApprovalStore extends EventEmitter {
         currentPrice: d.current_price
       })
     })
-    this.priceRequests = data
+    this.priceRequests = dataOut
+    this.filteredRequests = dataOut
+    console.log('this.filteredRequests is ', this.filteredRequests)
     this.emit('change')
   }
 
@@ -49,19 +60,20 @@ class ApprovalStore extends EventEmitter {
   }
 
   getRequests () {
-    return this.filteredRequests
+    return {'filteredRequests': this.filteredRequests}
   }
 
   handleActions (action) {
-    switch (aciton.actionType) {
+    switch (action.actionType) {
       case 'LOAD': {
         this.loadRequests()
+        break
       }
-      case 'APPROVE': {
+      case 'APPROVE_REQUEST': {
         this.approvePriceRequest(action.id)
         break
       }
-      case 'DENY': {
+      case 'DENY_REQUEST': {
         this.denyPriceRequest(action.id)
         break
       }
