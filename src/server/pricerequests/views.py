@@ -82,7 +82,6 @@ def view():
 @pricerequest.route('/prices/<id>')
 @login_required
 def prices(id):
-	print('id is {}'.format(id))
 	product = Product.query.filter_by(productid=id).one()
 	return jsonify({'price': product.price, 'id': id})
 
