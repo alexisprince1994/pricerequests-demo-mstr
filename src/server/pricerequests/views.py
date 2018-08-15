@@ -79,8 +79,6 @@ def statuschange():
 	data = request.get_json()
 	pr_id, status = data.get('id'), data.get('status')
 
-	print('pr_id is {} and status is {}'.format(pr_id, status))
-	
 	pr = PriceRequest.query.filter_by(pricerequestid=pr_id).first()
 	if not pr:
 		return jsonify({'error': 
