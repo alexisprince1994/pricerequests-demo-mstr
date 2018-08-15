@@ -29,8 +29,19 @@ class ApprovalStore extends EventEmitter {
     }
   }
 
-  approvePriceRequest (id) {
-    console.log('approve has been called')
+  approvePriceRequest (id, newStatus) {
+    const updateRequest = this.updateRequest.bind(this)
+    const reqData = {id, 'status': newStatus}
+
+    fetch('/pricerequests/statuschange', {
+      'method': 'POST',
+      'body': JSON.stringify(reqData),
+      'headers': {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => updateRequest(data))
   }
 
   denyPriceRequest (id, newStatus) {
@@ -47,6 +58,14 @@ class ApprovalStore extends EventEmitter {
       .then(data => updateRequest(data))
   }
 
+  refreshFilterOptions () {
+    const filterOptions = [null]
+    this.priceRequests.forEach(pr => {
+      filterOptions.push(pr.status)
+    })
+    this.filterOptions = Array.from(new Set(filterOptions))
+  }
+
   updateRequest (data) {
     if (data.error) {
       alert(data.error)
@@ -58,12 +77,12 @@ class ApprovalStore extends EventEmitter {
       }
     })
 
+    this.refreshFilterOptions()
     this.emit('change')
   }
 
   populateRequests (data) {
     const dataOut = []
-    const filterOptions = [null]
 
     data.forEach(d => {
       dataOut.push({
@@ -78,12 +97,12 @@ class ApprovalStore extends EventEmitter {
         cost: d.cost,
         currentPrice: d.current_price
       })
-      filterOptions.push(d.statuscode)
     })
 
     this.priceRequests = dataOut
     this.filteredRequests = dataOut
-    this.filterOptions = Array.from(new Set(filterOptions))
+    this.refreshFilterOptions()
+
     console.log('this.filteredRequests is ', this.filteredRequests)
     this.emit('change')
   }
@@ -111,7 +130,7 @@ class ApprovalStore extends EventEmitter {
         break
       }
       case 'APPROVE_REQUEST': {
-        this.approvePriceRequest(action.id)
+        this.approvePriceRequest(action.id, action.newStatus)
         break
       }
       case 'DENY_REQUEST': {

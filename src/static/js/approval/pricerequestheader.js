@@ -8,7 +8,6 @@ class PriceRequestHeader extends Component {
 
     this.approveRequest = this.approveRequest.bind(this)
     this.denyRequest = this.denyRequest.bind(this)
-    this.state = {'expanded': this.props.expanded || false}
   }
 
   approveRequest (event) {
@@ -24,11 +23,43 @@ class PriceRequestHeader extends Component {
     const collapseId = 'collapse' + this.props.id
     const target = '#' + collapseId
 
-    const isExpanded = this.state.expanded
+    const isExpanded = false
     const buttonText = (isExpanded ? 'Hide' : 'Show')
     const expandedButtonLinkClassName = (isExpanded
       ? 'btn btn-outline-info' : 'btn btn-outline-info collapsed')
     const expandedClassName = (isExpanded ? 'collapse show' : 'collapse')
+
+    const denyButton = <div className='btn-group mr-2'>
+      <button
+        className='btn btn-outline-danger'
+        onClick={this.denyRequest}
+      >
+              Deny
+      </button>
+    </div>
+
+    const approveButton = <div className='btn-group mr-2'>
+      <button
+        className='btn btn-outline-success'
+        onClick={this.approveRequest}
+      >
+        Approve
+      </button>
+    </div>
+
+    let button1
+    let button2
+
+    if (this.props.status === 'SUBMITTED') {
+      button1 = approveButton
+      button2 = denyButton
+    } else if (this.props.status === 'APPROVED') {
+      button1 = denyButton
+      button2 = ''
+    } else {
+      button1 = approveButton
+      button2 = ''
+    }
 
     return (
 
@@ -41,7 +72,7 @@ class PriceRequestHeader extends Component {
                   className={expandedButtonLinkClassName}
                   data-toggle='collapse'
                   data-target={target}
-                  aria-expanded={this.state.expanded}
+                  aria-expanded={false}
                   aria-controls={collapseId}
                 >
                   {buttonText}
@@ -78,29 +109,14 @@ class PriceRequestHeader extends Component {
             <div className='row'>
               <div className='col'>
                 <div className='btn-toolbar'>
-                  <div className='btn-group mr-2'>
-                    <button
-                      className='btn btn-outline-success'
-                      onClick={this.approveRequest}
-                    >
-              Approve
-                    </button>
-                  </div>
-                  <div className='btn-group mr-2'>
-                    <button
-                      className='btn btn-outline-danger'
-                      onClick={this.denyRequest}
-                    >
-              Deny
-                    </button>
-                  </div>
+                  {button1}
+                  {button2}
                 </div>
               </div>
               <div className='col' />
               <div className='col' />
               <div className='col' />
               <p className='float-right'> Current Status: {this.props.status} </p>
-
             </div>
           </div>
         </div>

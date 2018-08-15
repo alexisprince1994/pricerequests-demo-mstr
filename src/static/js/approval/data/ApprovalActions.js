@@ -1,9 +1,10 @@
 import ApprovalDispatcher from './ApprovalDispatcher'
 
-export function approveRequest (id) {
+export function approveRequest (id, newStatus) {
   ApprovalDispatcher.dispatch({
     actionType: 'APPROVE_REQUEST',
-    id
+    id,
+    newStatus
   })
 }
 
