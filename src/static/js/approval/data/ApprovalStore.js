@@ -67,13 +67,21 @@ class ApprovalStore extends EventEmitter {
   }
 
   updateRequest (data) {
-    if (data.error) {
-      alert(data.error)
-    }
-
     const updatedPriceRequests = this.priceRequests.forEach(pr => {
       if (pr.id === data.id) {
-        pr.status = data.statuscode
+        if (data.error) {
+          pr.error = true
+          pr.submitted = true
+          pr.btnPressMessage = `Error changing from 
+          status ${pr.status}. Error message is ${data.error}`
+        } else {
+          pr.submitted = true
+          pr.error = false
+          pr.oldStatus = pr.status
+          pr.status = data.statuscode
+          pr.btnPressMessage = `Successfully changed status from
+        ${pr.oldStatus} to ${pr.status}`
+        }
       }
     })
 
@@ -95,7 +103,10 @@ class ApprovalStore extends EventEmitter {
         requestedUnits: d.requested_units,
         requestedPrice: d.requested_price,
         cost: d.cost,
-        currentPrice: d.current_price
+        currentPrice: d.current_price,
+        oldStatus: null,
+        btnPressMessage: '',
+        submitted: false
       })
     })
 

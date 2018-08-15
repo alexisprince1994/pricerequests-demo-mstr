@@ -85,6 +85,9 @@ class PriceRequestManager extends Component {
                 currentPrice={obj.currentPrice}
                 requestedPrice={obj.requestedPrice}
                 requestDate={obj.requestDate}
+                error={obj.error}
+                btnPressMessage={obj.btnPressMessage}
+                submitted={obj.submitted}
               />
             )}
           </div>

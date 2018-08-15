@@ -8,14 +8,28 @@ class PriceRequestHeader extends Component {
 
     this.approveRequest = this.approveRequest.bind(this)
     this.denyRequest = this.denyRequest.bind(this)
+    this.toggleDisplayAlert = this.toggleDisplayAlert.bind(this)
+    this.state = {'displayAlert': true}
   }
 
   approveRequest (event) {
+    this.setState({
+      'displayAlert': true
+    })
     ApprovalActions.approveRequest(this.props.id, 'APPROVED')
   }
 
   denyRequest (event) {
+    this.setState({
+      'displayAlert': true
+    })
     ApprovalActions.denyRequest(this.props.id, 'DENIED')
+  }
+
+  toggleDisplayAlert () {
+    this.setState({
+      'displayAlert': false
+    })
   }
 
   render () {
@@ -61,6 +75,25 @@ class PriceRequestHeader extends Component {
       button2 = ''
     }
 
+    let btnPressAlert
+    if (this.props.submitted && this.state.displayAlert) {
+      if (!this.props.error) {
+        btnPressAlert = <div
+          className='alert alert-success'
+          onClick={this.toggleDisplayAlert}
+        >
+          {this.props.btnPressMessage}
+        </div>
+      } else {
+        btnPressAlert = <div
+          className='alert alert-danger'
+          onClick={this.toggleDisplayAlert}
+        >
+          {this.props.btnPressMessage}
+        </div>
+      }
+    }
+
     return (
 
       <div className='card' >
@@ -97,6 +130,10 @@ class PriceRequestHeader extends Component {
           aria-labelledby={headerId}
           data-parent={this.props.parentId}
         >
+          <div className='card-body'>
+            {this.state.displayAlert ? btnPressAlert : ''}
+          </div>
+
           <PriceRequestDetail
             requestedUnits={this.props.requestedUnits}
             cost={this.props.cost}
