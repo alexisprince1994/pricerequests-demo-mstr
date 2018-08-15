@@ -7,10 +7,11 @@ export function approveRequest (id) {
   })
 }
 
-export function denyRequest (id) {
+export function denyRequest (id, newStatus) {
   ApprovalDispatcher.dispatch({
     actionType: 'DENY_REQUEST',
-    id
+    id,
+    newStatus
   })
 }
 

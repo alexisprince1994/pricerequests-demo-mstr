@@ -12,11 +12,11 @@ class PriceRequestHeader extends Component {
   }
 
   approveRequest (event) {
-    ApprovalActions.approveRequest(this.props.id)
+    ApprovalActions.approveRequest(this.props.id, 'APPROVED')
   }
 
   denyRequest (event) {
-    ApprovalActions.denyRequest(this.props.id)
+    ApprovalActions.denyRequest(this.props.id, 'DENIED')
   }
 
   render () {
@@ -99,7 +99,7 @@ class PriceRequestHeader extends Component {
               <div className='col' />
               <div className='col' />
               <div className='col' />
-              <p className='float-right'> Current Status: SUBMITTED </p>
+              <p className='float-right'> Current Status: {this.props.status} </p>
 
             </div>
           </div>

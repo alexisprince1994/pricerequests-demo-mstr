@@ -7,15 +7,24 @@ class ApprovalStore extends EventEmitter {
     super()
     this.priceRequests = []
     this.filteredRequests = []
+    this.filterOptions = []
   }
 
   filterRequests (value) {
     // Ensuring we don't keep emitting change events if someone clicks the same
     // filter criteria.
+
+    // If the value is the null/empty string, assume they want all.
+    if (!value) {
+      this.filteredRequests = this.priceRequests
+      this.emit('change')
+      return
+    }
+
     const newFilteredRequests = this.priceRequests.filter(req => req.status === value)
 
     if (newFilteredRequests !== this.filteredRequests) {
-      this.filterRequests = newFilteredRequests
+      this.filteredRequests = newFilteredRequests
       this.emit('change')
     }
   }
@@ -24,12 +33,37 @@ class ApprovalStore extends EventEmitter {
     console.log('approve has been called')
   }
 
-  denyPriceRequest (id) {
-    console.log('deny has been called')
+  denyPriceRequest (id, newStatus) {
+    const updateRequest = this.updateRequest.bind(this)
+    const reqData = {id, 'status': newStatus}
+    fetch('/pricerequests/statuschange', {
+      'method': 'POST',
+      'body': JSON.stringify(reqData),
+      'headers': {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => updateRequest(data))
+  }
+
+  updateRequest (data) {
+    if (data.error) {
+      alert(data.error)
+    }
+
+    const updatedPriceRequests = this.priceRequests.forEach(pr => {
+      if (pr.id === data.id) {
+        pr.status = data.statuscode
+      }
+    })
+
+    this.emit('change')
   }
 
   populateRequests (data) {
     const dataOut = []
+    const filterOptions = [null]
 
     data.forEach(d => {
       dataOut.push({
@@ -44,9 +78,12 @@ class ApprovalStore extends EventEmitter {
         cost: d.cost,
         currentPrice: d.current_price
       })
+      filterOptions.push(d.statuscode)
     })
+
     this.priceRequests = dataOut
     this.filteredRequests = dataOut
+    this.filterOptions = Array.from(new Set(filterOptions))
     console.log('this.filteredRequests is ', this.filteredRequests)
     this.emit('change')
   }
@@ -63,6 +100,10 @@ class ApprovalStore extends EventEmitter {
     return {'filteredRequests': this.filteredRequests}
   }
 
+  getFilterOptions () {
+    return {'filterOptions': this.filterOptions}
+  }
+
   handleActions (action) {
     switch (action.actionType) {
       case 'LOAD': {
@@ -74,11 +115,12 @@ class ApprovalStore extends EventEmitter {
         break
       }
       case 'DENY_REQUEST': {
-        this.denyPriceRequest(action.id)
+        this.denyPriceRequest(action.id, action.newStatus)
         break
       }
       case 'FILTER': {
         this.filterRequests(action.value)
+        break
       }
       default : {
         console.log('Unknown action type fired. Action of type ',

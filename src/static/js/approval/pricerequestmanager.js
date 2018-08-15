@@ -10,20 +10,27 @@ class PriceRequestManager extends Component {
     this.state = {'filteredRequests': [], filterOptions: []}
     this.initialDataLoad = this.initialDataLoad.bind(this)
     this.reloadRequests = this.reloadRequests.bind(this)
+    this.reloadFilterOptions = this.reloadFilterOptions.bind(this)
     this.parentId = 'priceRequestAccordion'
   }
 
   componentWillMount () {
     ApprovalStore.on('change', this.reloadRequests)
+    ApprovalStore.on('change', this.reloadFilterOptions)
     this.initialDataLoad()
   }
 
   componentWillUnmount () {
     ApprovalStore.removeListener('change', this.reloadRequests)
+    ApprovalStore.removeListener('change', this.reloadFilterOptions)
   }
 
   reloadRequests () {
     this.setState(ApprovalStore.getRequests())
+  }
+
+  reloadFilterOptions () {
+    this.setState(ApprovalStore.getFilterOptions())
   }
 
   filterRequests (event) {
