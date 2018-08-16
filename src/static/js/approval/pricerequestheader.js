@@ -36,6 +36,7 @@ class PriceRequestHeader extends Component {
     const headerId = 'heading' + this.props.id
     const collapseId = 'collapse' + this.props.id
     const target = '#' + collapseId
+    const alertId = 'alert' + this.props.id
 
     const isExpanded = false
     const buttonText = (isExpanded ? 'Hide' : 'Show')
@@ -80,9 +81,13 @@ class PriceRequestHeader extends Component {
       if (!this.props.error) {
         btnPressAlert = <div
           className='alert alert-success'
-          onClick={this.toggleDisplayAlert}
         >
           {this.props.btnPressMessage}
+          <button type='button' className='close' aria-label='Close'
+            onClick={this.toggleDisplayAlert}>
+            <span aria-hidden='true'>&times;</span>
+          </button>
+
         </div>
       } else {
         btnPressAlert = <div
@@ -90,6 +95,10 @@ class PriceRequestHeader extends Component {
           onClick={this.toggleDisplayAlert}
         >
           {this.props.btnPressMessage}
+          <button type='button' className='close' aria-label='Close'
+            onClick={this.toggleDisplayAlert}>
+            <span aria-hidden='true'>&times;</span>
+          </button>
         </div>
       }
     }
