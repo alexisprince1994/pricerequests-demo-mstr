@@ -36,9 +36,12 @@ class Product extends Component {
   }
 
   reloadProduct () {
-    this.setState(
-      PriceRequestStore.getProduct()
-    )
+    this.setState(PriceRequestStore.getProduct(),
+      () => {
+        if (this.state.shouldClear) {
+          this.typeahead.getInstance().clear()
+        }
+      })
   }
 
   handleInputChange (label) {
@@ -62,9 +65,14 @@ class Product extends Component {
   }
 
   render () {
-    const { giveFeedback, feedbackType, feedbackMessage } = this.state
-    const goodFeedback = (feedbackType === 1)
-    const badFeedback = (feedbackType === -1 ? true : null)
+    let { feedbackMessage } = this.state
+    const { giveFeedback, feedbackType, shouldClear } = this.state
+    let goodFeedback = (feedbackType === 1)
+    let badFeedback = (feedbackType === -1 ? true : null)
+
+    goodFeedback = (!shouldClear ? goodFeedback : null)
+    badFeedback = (!shouldClear ? badFeedback : null)
+    feedbackMessage = (!shouldClear ? feedbackMessage : null)
 
     return (
       <div>
@@ -76,6 +84,7 @@ class Product extends Component {
             onChange={this.onSelect}
             onBlur={this.handleBlur}
             isInvalid={badFeedback}
+            ref={(typeahead) => this.typeahead = typeahead}
             isValid={goodFeedback}
             options={this.state.options}
             onSearch={query => {

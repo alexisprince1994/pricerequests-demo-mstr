@@ -42,7 +42,7 @@ class RequestedUnits extends Component {
 
     if (this.state.giveFeedback) {
       if (this.state.feedbackMessage) {
-        feedback = <div className='invalid-feedback'>{this.props.errorMessage}</div>
+        feedback = <div className='invalid-feedback'>{this.state.feedbackMessage}</div>
         feedbackClassName = 'form-control is-invalid'
       } else {
         feedback = <div className='valid-feedback' />
@@ -51,6 +51,11 @@ class RequestedUnits extends Component {
     } else {
       feedbackClassName = 'form-control'
       feedback = false
+    }
+
+    if (this.state.shouldClear) {
+      feedback = false
+      feedbackClassName = 'form-control'
     }
 
     return (

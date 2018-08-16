@@ -20,7 +20,14 @@ class CurrentPrice extends Component {
   }
 
   reloadNormalPrice () {
-    this.setState(PriceRequestStore.getNormalPrice())
+    this.setState(PriceRequestStore.getNormalPrice(),
+      () => {
+        if (this.state.shouldClear) {
+          this.setState({
+            value: ''
+          })
+        }
+      })
   }
   render () {
     return (

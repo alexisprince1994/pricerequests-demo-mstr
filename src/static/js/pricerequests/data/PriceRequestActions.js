@@ -41,7 +41,7 @@ export function updateProduct (id, label, fromDropdown) {
 export function updateRequestedUnits (units) {
   PriceRequestDispatcher.dispatch({
     actionType: 'UPDATE_REQUESTED_UNITS',
-    units: units
+    units
   })
 }
 

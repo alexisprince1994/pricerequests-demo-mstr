@@ -29,6 +29,7 @@ class RequestedPrice extends Component {
   }
 
   reloadRequestedPrice () {
+    console.log('requestedPrice state is ', PriceRequestStore.getRequestedPrice())
     this.setState(PriceRequestStore.getRequestedPrice())
   }
 
@@ -38,13 +39,18 @@ class RequestedPrice extends Component {
 
     if (this.state.giveFeedback) {
       if (this.state.feedbackMessage) {
-        feedback = <div className='invalid-feedback'>{this.state.errorMessage}</div>
+        feedback = <div className='invalid-feedback'>{this.state.feedbackMessage}</div>
         feedbackClassName = 'form-control is-invalid'
       } else {
         feedback = <div className='valid-feedback' />
         feedbackClassName = 'form-control is-valid'
       }
     } else {
+      feedbackClassName = 'form-control'
+      feedback = false
+    }
+
+    if (this.state.shouldClear) {
       feedbackClassName = 'form-control'
       feedback = false
     }
@@ -56,8 +62,7 @@ class RequestedPrice extends Component {
           className={feedbackClassName}
           id='requestedPrice'
           onBlur={this.handleBlur}
-          value={this.state.requestedPrice}
-          placeholder={this.state.normalPrice}
+          value={this.state.value}
           onChange={this.handleChange}
         />
         {feedback && feedback ? feedback : ''}

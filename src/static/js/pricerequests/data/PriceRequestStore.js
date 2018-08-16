@@ -7,6 +7,7 @@ const REQUEST_URL = 'http:127.0.0.1:5000/'
 const CUSTOMER_DEFAULT = {
   'id': null,
   'label': '',
+  shouldClear: true,
   valid: false,
   'feedback': {
     'giveFeedback': false,
@@ -19,6 +20,7 @@ const PRODUCT_DEFAULT = {
   id: null,
   label: null,
   valid: false,
+  shouldClear: true,
   feedback: {
     giveFeedback: false,
     feedbackType: null,
@@ -27,6 +29,7 @@ const PRODUCT_DEFAULT = {
 }
 
 const PRICES_DEFAULT = {
+  shouldClear: true,
   normalPrice: {
     value: ''
   },
@@ -42,6 +45,7 @@ const PRICES_DEFAULT = {
 }
 
 const UNITS_DEFAULT = {
+  shouldClear: true,
   value: '',
   valid: false,
   feedback: {
@@ -63,10 +67,10 @@ const VALIDATION_DEFAULT = {
 class PriceRequestStore extends EventEmitter {
   constructor () {
     super()
-    this.customer = Object.assign({}, CUSTOMER_DEFAULT)
-    this.product = Object.assign({}, PRODUCT_DEFAULT)
-    this.prices = Object.assign({}, PRICES_DEFAULT)
-    this.units = Object.assign({}, UNITS_DEFAULT)
+    this.customer = JSON.parse(JSON.stringify(CUSTOMER_DEFAULT))
+    this.product = JSON.parse(JSON.stringify(PRODUCT_DEFAULT))
+    this.prices = JSON.parse(JSON.stringify(PRICES_DEFAULT))
+    this.units = JSON.parse(JSON.stringify(UNITS_DEFAULT))
     this.requestReason = REQUESTED_REASON_DEFAULT
     this.isDraft = IS_DRAFT_DEFAULT
     this.validation = VALIDATION_DEFAULT
@@ -109,6 +113,7 @@ class PriceRequestStore extends EventEmitter {
 
   clearForm () {
     // Returns the form to its default state
+
     this.customer = Object.assign({}, CUSTOMER_DEFAULT)
     this.product = Object.assign({}, PRODUCT_DEFAULT)
     this.prices = Object.assign({}, PRICES_DEFAULT)
@@ -118,6 +123,9 @@ class PriceRequestStore extends EventEmitter {
     this.validation = VALIDATION_DEFAULT
     this.formSubmitted = false
     this.isValid = false
+    this.shouldClear = true
+    console.log('from clearForm, prices default is ', PRICES_DEFAULT)
+    console.log('from clearForm, this.prices is ', this.prices)
     this.emit('change')
   }
 
@@ -127,12 +135,17 @@ class PriceRequestStore extends EventEmitter {
   }
 
   updateProduct (id, label, fromDropdown) {
+    this.product.shouldClear = false
     this.product.id = id
     this.product.label = label
     this.product.feedback.giveFeedback = true
     this.product.feedback.feedbackType = (fromDropdown ? 1 : -1)
     this.product.feedback.feedbackMessage = (fromDropdown
       ? '' : 'Please select a product option from the dropdown.')
+
+    if (!fromDropdown) {
+      this.prices.normalPrice.value = ''
+    }
 
     this.validation.product = (!!fromDropdown)
     this.emit('change')
@@ -141,6 +154,7 @@ class PriceRequestStore extends EventEmitter {
   fetchProductPrice (id) {
     // Fetch's the requested product's price from the server
     // and passes the return value off to the appropriate handler.
+
     const handlePrices = this.receiveProductPrice.bind(this)
 
     const priceUrl = 'prices/' + id
@@ -152,60 +166,74 @@ class PriceRequestStore extends EventEmitter {
 
   receiveProductPrice (response) {
     this.prices.normalPrice.value = response.price
+    this.prices.shouldClear = false
     this.emit('change')
   }
 
   updateProductBlur (giveFeedback) {
     this.product.feedback.giveFeedback = giveFeedback
+    this.product.shouldClear = false
     this.emit('change')
   }
 
   requestedUnitsBlurred (giveFeedback) {
     this.units.feedback.giveFeedback = giveFeedback
+    if (!this.units.value) {
+      this.units.feedback.feedbackMessage = 'This field is required.'
+    }
+    this.units.shouldClear = false
     this.emit('change')
   }
 
   requestedPriceBlurred (giveFeedback) {
     this.prices.requestedPrice.feedback.giveFeedback = giveFeedback
-    this.emit('change')
-  }
-
-  updateRequestedPrice (value) {
-    let feedbackMessage
-    let isValid
-
-    this.formSubmitted = false
-
-    isValid = false
-
-    this.price.requestedPrice.value = value
-    this.price.requestedPrice.feedback.giveFeedback = true
-    this.price.requestedPrice.feedback.feedbackType = (parseFloat(value) > 0 ? 1 : -1)
-
-    if (!value) {
-      feedbackMessage = 'This field is required.'
-    } else if (isNaN(parseFloat(value))) {
-      feedbackMessage = 'Numbers only please!'
-    } else if (parseFloat(value) <= 0) {
-      feedbackMessage = 'A positive non-zero price is required.'
-    } else {
-      feedbackMessage = null
-      isValid = true
+    if (!this.prices.requestedPrice.value) {
+      this.prices.requestedPrice.feedback.feedbackMessage = 'This field is required.'
     }
-
-    this.price.requestedPrice.feedback.feedbackMessage = feedbackMessage
-    this.validation.requestedPrice = isValid
+    this.prices.shouldClear = false
     this.emit('change')
   }
+
+  // updateRequestedPrice (value) {
+  //   let feedbackMessage
+  //   let isValid
+  //   this.prices.shouldClear = false
+  //   this.formSubmitted = false
+
+  //   isValid = false
+
+  //   this.prices.requestedPrice.value = value
+  //   this.prices.requestedPrice.feedback.giveFeedback = true
+  //   this.prices.requestedPrice.feedback.feedbackType = (parseFloat(value) > 0 ? 1 : -1)
+
+  //   if (!value) {
+  //     feedbackMessage = 'This field is required.'
+  //   } else if (isNaN(parseFloat(value))) {
+  //     feedbackMessage = 'Numbers only please!'
+  //   } else if (parseFloat(value) <= 0) {
+  //     feedbackMessage = 'A positive non-zero price is required.'
+  //   } else {
+  //     feedbackMessage = null
+  //     isValid = true
+  //   }
+
+  //   this.prices.requestedPrice.feedback.feedbackMessage = feedbackMessage
+  //   this.validation.requestedPrice = isValid
+  //   this.emit('change')
+  // }
 
   updateRequestedUnits (value) {
+    this.units.shouldClear = false
     this.formSubmitted = false
     this.units.value = value
     this.units.feedback.giveFeedback = true
 
     let feedbackMessage
+    console.log('value from updateRequestedUnits is ', value)
 
     const feedbackType = (parseInt(value) > 0 ? 1 : -1)
+    console.log('feedbackType is ', feedbackType)
+    this.units.feedback.feedbackType = feedbackType
     this.units.valid = (parseInt(value) > 0)
     this.validation.requestedUnits = (parseInt(value) > 0)
 
@@ -219,12 +247,14 @@ class PriceRequestStore extends EventEmitter {
       feedbackMessage = null
     }
 
-    this.units.feedback.feedbackType = feedbackType
+    console.log('feedbackMessage from updateRequestedUnits is ', feedbackMessage)
+
     this.units.feedback.feedbackMessage = feedbackMessage
     this.emit('change')
   }
 
   updateRequestedPrice (value) {
+    this.prices.shouldClear = false
     this.formSubmitted = false
     this.prices.requestedPrice.value = value
     this.prices.requestedPrice.feedback.giveFeedback = true
@@ -232,9 +262,12 @@ class PriceRequestStore extends EventEmitter {
     let feedbackMessage
     let isValid
     isValid = false
-    if (!this.prices.normalPrice.value) {
+    if (!this.prices.normalPrice.value && value) {
       feedbackType = -1
       feedbackMessage = 'Please select a product.'
+    } else if (!value) {
+      feedbackType = -1
+      feedbackMessage = 'This field is required.'
     } else {
       feedbackType = (this.prices.requestedPrice.value >= this.prices.normalPrice.value
         ? -1 : 1)
@@ -252,6 +285,7 @@ class PriceRequestStore extends EventEmitter {
 
   updateCustomer (id, label, fromDropdown) {
     this.formSubmitted = false
+    this.customer.shouldClear = false
     this.customer.id = id
     this.customer.label = label
     this.customer.feedback.giveFeedback = true
@@ -266,6 +300,7 @@ class PriceRequestStore extends EventEmitter {
 
   updateCustomerBlur (giveFeedback) {
     this.customer.feedback.giveFeedback = giveFeedback
+    this.customer.shouldClear = false
     this.emit('change')
   }
 
@@ -288,6 +323,7 @@ class PriceRequestStore extends EventEmitter {
 
   getProduct () {
     return {
+      shouldClear: this.product.shouldClear,
       id: this.product.id,
       label: this.product.label,
       giveFeedback: this.product.feedback.giveFeedback,
@@ -298,16 +334,18 @@ class PriceRequestStore extends EventEmitter {
 
   getRequestedUnits () {
     return {
+      shouldClear: this.units.shouldClear,
       value: this.units.value,
-      giveFeedback: this.units.giveFeedback,
-      feedbackType: this.units.feedbackType,
-      feedbackMessage: this.units.feedbackMessage
+      giveFeedback: this.units.feedback.giveFeedback,
+      feedbackType: this.units.feedback.feedbackType,
+      feedbackMessage: this.units.feedback.feedbackMessage
     }
   }
 
   getCustomer () {
     return {
       id: this.customer.id,
+      shouldClear: this.customer.shouldClear,
       label: this.customer.label,
       giveFeedback: this.customer.feedback.giveFeedback,
       feedbackType: this.customer.feedback.feedbackType,
@@ -317,6 +355,7 @@ class PriceRequestStore extends EventEmitter {
 
   getRequestedPrice () {
     return {
+      shouldClear: this.prices.shouldClear,
       value: this.prices.requestedPrice.value,
       giveFeedback: this.prices.requestedPrice.feedback.giveFeedback,
       feedbackType: this.prices.requestedPrice.feedback.feedbackType,
@@ -338,6 +377,7 @@ class PriceRequestStore extends EventEmitter {
 
   getNormalPrice () {
     return {
+      shouldClear: this.prices.shouldClear,
       value: this.prices.normalPrice.value
     }
   }

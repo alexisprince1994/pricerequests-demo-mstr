@@ -33,7 +33,12 @@ class Customer extends Component {
   }
 
   reloadCustomer () {
-    this.setState(PriceRequestStore.getCustomer())
+    this.setState(PriceRequestStore.getCustomer(),
+      () => {
+        if (this.state.shouldClear) {
+          this.typeahead.getInstance().clear()
+        }
+      })
   }
 
   onSelect (selected) {
@@ -53,15 +58,14 @@ class Customer extends Component {
   }
 
   render () {
-    const { giveFeedback, feedbackType } = this.state
+    const { giveFeedback, feedbackType, shouldClear } = this.state
     let { feedbackMessage } = this.state
     let goodFeedback = (feedbackType === 1)
     let badFeedback = (feedbackType === -1 ? true : null)
-    const { isDraft } = this.props
 
-    goodFeedback = (!isDraft ? goodFeedback : null)
-    badFeedback = (!isDraft ? badFeedback : null)
-    feedbackMessage = (!isDraft ? feedbackMessage : null)
+    goodFeedback = (!shouldClear ? goodFeedback : null)
+    badFeedback = (!shouldClear ? badFeedback : null)
+    feedbackMessage = (!shouldClear ? feedbackMessage : null)
 
     return (
       <div>
@@ -74,6 +78,7 @@ class Customer extends Component {
             onChange={this.onSelect}
             isValid={goodFeedback}
             isInvalid={badFeedback}
+            ref={(typeahead) => this.typeahead = typeahead}
             options={this.state.options}
             onSearch={query => {
               this.setState({isLoading: true})
