@@ -67,6 +67,11 @@ const VALIDATION_DEFAULT = {
 class PriceRequestStore extends EventEmitter {
   constructor () {
     super()
+    // Using deep copies since nested objects don't get copied
+    // appropriately when using Object.assign({}, oldObject)
+    // Parse and stringify ensure the original copy does
+    // not get messed with, so we can reset form state
+    // whenever needed.
     this.customer = JSON.parse(JSON.stringify(CUSTOMER_DEFAULT))
     this.product = JSON.parse(JSON.stringify(PRODUCT_DEFAULT))
     this.prices = JSON.parse(JSON.stringify(PRICES_DEFAULT))
