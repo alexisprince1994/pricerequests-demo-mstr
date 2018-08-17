@@ -21,14 +21,7 @@ def create_price_requests(PriceRequest, Product, Customer, db):
 
 
 
-def create_categories(Category, db):
 
-	categories = ['Electronics', 'Books']
-
-	for category in categories:
-		db.session.add(Category(categoryname=category))
-
-	db.session.commit()
 
 
 def create_products(Product, db):
@@ -81,7 +74,7 @@ def create_products(Product, db):
     ]
 
 	for product, price, cost in zip(products, prices, costs):
-		db.session.add(Product(productname=product, categoryid=2, price=price, cost=cost))
+		db.session.add(Product(productname=product, price=price, cost=cost))
 
 	db.session.commit()
 
@@ -117,7 +110,7 @@ def create_statuses(PriceRequestStatus, db):
 
 	db.session.commit()
 
-def create_data(Category, Product, Customer, db, PriceRequestStatus):
+def create_data(Product, Customer, db, PriceRequestStatus):
 
 	create_customers(Customer, db)
 	create_products(Product, db)

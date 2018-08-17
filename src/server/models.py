@@ -46,26 +46,20 @@ class User(db.Model, LastUpdatedTimestampMixin, UserMixin):
     			self.username, "password redacted", self.active,
     			self.confirmed_at, self.read_only)
 
-class Category(db.Model, LastUpdatedTimestampMixin):
 
-	__tablename__ = 'categories'
-
-	categoryid = pk(db)
-	categoryname = db.Column(db.String(25), nullable=False, unique=True)
 
 class Product(db.Model, LastUpdatedTimestampMixin):
 
 	__tablename__ = 'products'
 
 	productid = pk(db)
-	categoryid = db.Column(db.Integer, db.ForeignKey('categories.categoryid'),
-	index=True)
+	
 	productname = db.Column(db.String(50), nullable=False, unique=True)
 
 	price = db.Column(db.Float, nullable=False)
 	cost = db.Column(db.Float, nullable=False)
 
-	category = db.relationship('Category', backref=db.backref('products'), lazy=True)
+	
 
 
 	def __repr__(self):
