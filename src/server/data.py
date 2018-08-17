@@ -114,4 +114,4 @@ def create_data(Product, Customer, db, PriceRequestStatus):
 
 	create_customers(Customer, db)
 	create_products(Product, db)
-	create_categories(Category, db)
+	create_statuses(PriceRequestStatus, db)
