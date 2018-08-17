@@ -59,7 +59,7 @@ class Product(db.Model, LastUpdatedTimestampMixin):
 
 	productid = pk(db)
 	categoryid = db.Column(db.Integer, db.ForeignKey('categories.categoryid'),
-		nullable=False, index=True)
+	index=True)
 	productname = db.Column(db.String(50), nullable=False, unique=True)
 
 	price = db.Column(db.Float, nullable=False)
