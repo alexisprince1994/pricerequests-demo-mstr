@@ -1,3 +1,24 @@
+from random import choice, randint
+
+def create_price_requests(PriceRequest, Product, Customer, db):
+
+	products = Product.query.all()
+	customers = Customer.query.all()
+	status = 'SUBMITTED'
+	for _ in range(10):
+		product = choice(products)
+		customer = choice(customers)
+		current_price = product.price
+		requested_price = randint(1, current_price - 1)
+		requested_units = randint(100, 10000)
+		pr = PriceRequest(customerid=customer.customerid, productid=product.productid,
+			statuscode=status, requestedprice=requested_price, requestreason=None,
+			requestedunits=requested_units)
+		db.session.add(pr)
+
+	db.session.commit()
+
+
 
 
 def create_categories(Category, db):
