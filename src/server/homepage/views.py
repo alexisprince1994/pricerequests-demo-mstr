@@ -13,12 +13,16 @@ homepage = Blueprint('homepage', __name__)
 @login_required
 def index():
 
+	print('current users read only status is {}'.format(current_user.read_only))
 	routes = {}
 	if current_user.active:
-		routes['price_requests'] = [{'display': 'Price Requests', 'route': '/pricerequests'}]
+		routes['price_requests'] = [
+		{'display': 'Price Request Submission', 'route': '/pricerequests'},
+		{'display': 'Price Request Approval', 'route': '/pricerequests/view'}]
 
 	if not current_user.read_only:
-		routes['editrefs'] = [{'display': 'Customers', 'route': '/editrefs/customers'}, 
+		routes['editrefs'] = [
+		{'display': 'Customers', 'route': '/editrefs/customers'}, 
 		{'display': 'Price Request Statuses', 'route': '/editrefs/pricerequeststatuses'},
 		{'display': 'Products', 'route': '/editrefs/products'}
 		]
