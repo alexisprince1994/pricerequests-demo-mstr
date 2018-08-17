@@ -6,7 +6,7 @@ class ProductionConfig(object):
 	DEBUG = False
 	TESTING = False
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
-	SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+	SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 	SECRET_KEY = os.environ.get('SECRET_KEY')
 	WTF_CSRF_SECRET_KEY = os.environ.get('CSRF_SECRET_KEY')
 	SECURITY_PASSWORD_SALT = os.environ.get('PASSWORD_KEY')
