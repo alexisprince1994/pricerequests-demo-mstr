@@ -1,3 +1,4 @@
+aniso8601==3.0.2
 bcrypt==3.1.4
 certifi==2018.4.16
 cffi==1.11.5
@@ -6,9 +7,12 @@ click==6.7
 Flask==1.0.2
 Flask-Bcrypt==0.7.1
 Flask-Cors==3.0.6
+Flask-JWT-Extended==3.12.1
 Flask-Login==0.4.1
+Flask-RESTful==0.3.6
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
+gunicorn==19.9.0
 idna==2.7
 itsdangerous==0.24
 Jinja2==2.10
@@ -16,6 +20,7 @@ MarkupSafe==1.0
 numpy==1.15.0
 pandas==0.23.3
 pycparser==2.18
+PyJWT==1.6.4
 pyodbc==4.0.23
 python-dateutil==2.7.3
 pytz==2018.5
