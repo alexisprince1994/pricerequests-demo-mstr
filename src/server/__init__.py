@@ -31,4 +31,4 @@ def create_app(config_object):
 
 	return app
 
-app = create_app('server.config.DevelopmentConfig')
+app = create_app('server.config.ProductionConfig')
