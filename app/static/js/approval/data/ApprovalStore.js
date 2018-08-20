@@ -8,6 +8,7 @@ class ApprovalStore extends EventEmitter {
     this.priceRequests = []
     this.filteredRequests = []
     this.filterOptions = []
+    this.dateFilterOptions = []
   }
 
   filterRequests (value) {
@@ -23,6 +24,20 @@ class ApprovalStore extends EventEmitter {
 
     const newFilteredRequests = this.priceRequests.filter(req => req.status === value)
 
+    if (newFilteredRequests !== this.filteredRequests) {
+      this.filteredRequests = newFilteredRequests
+      this.emit('change')
+    }
+  }
+
+  filterRequestsByDate (value) {
+    if (!value) {
+      this.filteredRequests = this.priceRequests
+      this.emit('change')
+      return
+    }
+
+    const newFilteredRequests = this.priceRequests.filter(req => req.requestDate === value)
     if (newFilteredRequests !== this.filteredRequests) {
       this.filteredRequests = newFilteredRequests
       this.emit('change')
@@ -64,6 +79,14 @@ class ApprovalStore extends EventEmitter {
       filterOptions.push(pr.status)
     })
     this.filterOptions = Array.from(new Set(filterOptions))
+  }
+
+  refreshDateFilterOptions () {
+    const dateFilterOptions = [null]
+    this.priceRequests.forEach(pr => {
+      dateFilterOptions.push(pr.requestDate)
+    })
+    this.dateFilterOptions = Array.from(new Set(dateFilterOptions))
   }
 
   updateRequest (data) {
@@ -113,6 +136,7 @@ class ApprovalStore extends EventEmitter {
     this.priceRequests = dataOut
     this.filteredRequests = dataOut
     this.refreshFilterOptions()
+    this.refreshDateFilterOptions()
 
     console.log('this.filteredRequests is ', this.filteredRequests)
     this.emit('change')
@@ -131,7 +155,7 @@ class ApprovalStore extends EventEmitter {
   }
 
   getFilterOptions () {
-    return {'filterOptions': this.filterOptions}
+    return {'filterOptions': this.filterOptions, 'dateFilterOptions': this.dateFilterOptions}
   }
 
   handleActions (action) {
@@ -150,6 +174,10 @@ class ApprovalStore extends EventEmitter {
       }
       case 'FILTER': {
         this.filterRequests(action.value)
+        break
+      }
+      case 'FILTER_BY_DATE': {
+        this.filterRequestsByDate(action.value)
         break
       }
       default : {

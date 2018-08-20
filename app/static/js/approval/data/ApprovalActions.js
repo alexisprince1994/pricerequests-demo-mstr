@@ -28,3 +28,10 @@ export function initialRequestLoad () {
     actionType: 'LOAD'
   })
 }
+
+export function filterRequestsByDate (value) {
+  ApprovalDispatcher.dispatch({
+    actionType: 'FILTER_BY_DATE',
+    value
+  })
+}

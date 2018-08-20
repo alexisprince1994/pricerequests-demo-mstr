@@ -29,7 +29,6 @@ class RequestedPrice extends Component {
   }
 
   reloadRequestedPrice () {
-    console.log('requestedPrice state is ', PriceRequestStore.getRequestedPrice())
     this.setState(PriceRequestStore.getRequestedPrice())
   }
 

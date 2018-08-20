@@ -149,6 +149,7 @@ class PriceRequestHeader extends Component {
             product={this.props.productName}
             currentPrice={this.props.currentPrice}
             requestedPrice={this.props.requestedPrice}
+            requestReason={this.props.requestReason}
           />
 
           <div className='card-body'>

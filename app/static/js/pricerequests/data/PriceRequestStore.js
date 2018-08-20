@@ -94,8 +94,10 @@ class PriceRequestStore extends EventEmitter {
       productid: this.product.id,
       requestedPrice: parseFloat(this.prices.requestedPrice.value),
       units: parseInt(this.units.value),
-      requestedReason: this.requestReason
+      requestReason: this.requestReason
     }
+
+    console.log('payload is ', payload)
 
     const isPayloadValidated = this.validatePayload(this.validation)
 
@@ -199,34 +201,6 @@ class PriceRequestStore extends EventEmitter {
     this.emit('change')
   }
 
-  // updateRequestedPrice (value) {
-  //   let feedbackMessage
-  //   let isValid
-  //   this.prices.shouldClear = false
-  //   this.formSubmitted = false
-
-  //   isValid = false
-
-  //   this.prices.requestedPrice.value = value
-  //   this.prices.requestedPrice.feedback.giveFeedback = true
-  //   this.prices.requestedPrice.feedback.feedbackType = (parseFloat(value) > 0 ? 1 : -1)
-
-  //   if (!value) {
-  //     feedbackMessage = 'This field is required.'
-  //   } else if (isNaN(parseFloat(value))) {
-  //     feedbackMessage = 'Numbers only please!'
-  //   } else if (parseFloat(value) <= 0) {
-  //     feedbackMessage = 'A positive non-zero price is required.'
-  //   } else {
-  //     feedbackMessage = null
-  //     isValid = true
-  //   }
-
-  //   this.prices.requestedPrice.feedback.feedbackMessage = feedbackMessage
-  //   this.validation.requestedPrice = isValid
-  //   this.emit('change')
-  // }
-
   updateRequestedUnits (value) {
     this.units.shouldClear = false
     this.formSubmitted = false
@@ -234,10 +208,9 @@ class PriceRequestStore extends EventEmitter {
     this.units.feedback.giveFeedback = true
 
     let feedbackMessage
-    console.log('value from updateRequestedUnits is ', value)
 
     const feedbackType = (parseInt(value) > 0 ? 1 : -1)
-    console.log('feedbackType is ', feedbackType)
+
     this.units.feedback.feedbackType = feedbackType
     this.units.valid = (parseInt(value) > 0)
     this.validation.requestedUnits = (parseInt(value) > 0)
@@ -251,8 +224,6 @@ class PriceRequestStore extends EventEmitter {
     } else {
       feedbackMessage = null
     }
-
-    console.log('feedbackMessage from updateRequestedUnits is ', feedbackMessage)
 
     this.units.feedback.feedbackMessage = feedbackMessage
     this.emit('change')

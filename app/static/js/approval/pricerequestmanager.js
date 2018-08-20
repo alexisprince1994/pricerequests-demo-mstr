@@ -7,10 +7,11 @@ class PriceRequestManager extends Component {
   constructor (props) {
     super(props)
 
-    this.state = {'filteredRequests': [], filterOptions: []}
+    this.state = {'filteredRequests': [], filterOptions: [], dateFilterOptions: []}
     this.initialDataLoad = this.initialDataLoad.bind(this)
     this.reloadRequests = this.reloadRequests.bind(this)
     this.reloadFilterOptions = this.reloadFilterOptions.bind(this)
+    this.filterRequestsByDate = this.filterRequestsByDate.bind(this)
     this.parentId = 'priceRequestAccordion'
   }
 
@@ -33,6 +34,10 @@ class PriceRequestManager extends Component {
     this.setState(ApprovalStore.getFilterOptions())
   }
 
+  filterRequestsByDate (event) {
+    ApprovalActions.filterRequestsByDate(event.target.value)
+  }
+
   filterRequests (event) {
     ApprovalActions.filterRequests(event.target.value)
   }
@@ -46,6 +51,11 @@ class PriceRequestManager extends Component {
     this.state.filterOptions.map((opt, indx) =>
       selectOptions.push(<option key={indx}>{opt}</option>))
 
+    const dateFilterOptions = []
+    this.state.dateFilterOptions.map((opt, indx) =>
+      dateFilterOptions.push(<option key={indx}>{opt}</option>))
+
+    console.log('this.state.filteredRequests is ', this.state.filteredRequests)
     return (
       <div>
         <div className='container'>
@@ -53,7 +63,18 @@ class PriceRequestManager extends Component {
             <div className='col' />
             <div className='col' />
             <div className='col' />
-            <div className='col' />
+            <div className='col'>
+              <div className='form-group'>
+                <label htmlFor='requestFilterByDate'>Filter by Request Date </label>
+                <select
+                  className='form-control'
+                  id='requestFilterByDate'
+                  onChange={this.filterRequestsByDate}
+                >
+                  {dateFilterOptions}
+                </select>
+              </div>
+            </div>
             <div className='col'>
               <div className='form-group'>
                 <label htmlFor='requestFilter'>Filter Status</label>
@@ -78,7 +99,7 @@ class PriceRequestManager extends Component {
                 customer={obj.customer}
                 expanded={obj.expanded}
                 parentId={this.parentId}
-                bodyMessage={obj.bodyMessage}
+                requestReason={obj.requestReason}
                 status={obj.status}
                 requestedUnits={obj.requestedUnits}
                 cost={obj.cost}
