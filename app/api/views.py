@@ -69,8 +69,14 @@ def post(id):
 		return make_response(400,
 			error_message='price request not found for id {}'.format(id))
 	else:
-		price_request.statuscode = action
-		db.session.add(price_request)
-		db.session.commit()
-		return make_response(200)
+		try:
+			price_request.statuscode = action
+			db.session.add(price_request)
+			db.session.commit()
+			return make_response(200)
+		except Exception as e:
+			db.session.rollback()
+			return make_response(400, jsonify(str(e)))
+
+
 		

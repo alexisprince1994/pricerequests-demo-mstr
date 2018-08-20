@@ -23,8 +23,7 @@ def pricerequests():
 		return redirect_not_authorized()
 
 	if current_user.read_only and request.method == 'POST':
-		flash('Sorry, read only users cannot submit this form.', 'danger')
-		return
+		return redirect_not_authorized()
 
 	if request.method == 'POST':
 		data = request.get_json()
@@ -35,7 +34,6 @@ def pricerequests():
 				requestedunits=data.get('units'), requestreason=data.get('requestReason'))
 			db.session.add(pr)
 			db.session.commit()
-			print('The followingg data was sent to this route : {}'.format(request.get_json()))
 			return jsonify({'id': pr.pricerequestid, 'message': 'Submitted successfully'})
 		except Exception as e:
 			print('exception hit. rollback caused. {}'.format(e))
@@ -111,6 +109,9 @@ def view():
 @pricerequest.route('/prices/<id>')
 @login_required
 def prices(id):
+	if current_user.read_only:
+		return redirect_not_authorized()
+
 	product = Product.query.filter_by(productid=id).one()
 	return jsonify({'price': product.price, 'id': id})
 
@@ -118,8 +119,11 @@ def prices(id):
 @login_required
 def products():
 
+	if current_user.read_only:
+		return redirect_not_authorized()
+
+	
 	search_term = request.args.get('q')
-	print('Search term is {}'.format(search_term))
 	if search_term:
 		query_results = Product.query.filter(
 			Product.productname.like('%' + search_term + '%')).all()
