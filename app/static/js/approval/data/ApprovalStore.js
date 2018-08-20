@@ -5,43 +5,44 @@ import { EventEmitter } from 'events'
 class ApprovalStore extends EventEmitter {
   constructor () {
     super()
+    this.statusFilterValue = null
+    this.dateFilterValue = null
     this.priceRequests = []
     this.filteredRequests = []
     this.filterOptions = []
     this.dateFilterOptions = []
   }
 
-  filterRequests (value) {
+  _filterRequests () {
     // Ensuring we don't keep emitting change events if someone clicks the same
     // filter criteria.
 
     // If the value is the null/empty string, assume they want all.
-    if (!value) {
-      this.filteredRequests = this.priceRequests
-      this.emit('change')
+    const isStatusFiltered = (!!this.statusFilterValue)
+    const isDateFiltered = (!!this.dateFilterValue)
+    const statusFilterValue = this.statusFilterValue
+    const dateFilterValue = this.dateFilterValue
+
+    if (isStatusFiltered && isDateFiltered) {
+      this.filteredRequests = this.priceRequests.filter(pr => (pr.status === statusFilterValue) && (pr.requestDate === dateFilterValue))
       return
     }
 
-    const newFilteredRequests = this.priceRequests.filter(req => req.status === value)
-
-    if (newFilteredRequests !== this.filteredRequests) {
-      this.filteredRequests = newFilteredRequests
-      this.emit('change')
+    if (isStatusFiltered) {
+      this.filteredRequests = this.priceRequests.filter(pr => pr.status === statusFilterValue)
+    } else {
+      this.filteredRequests = this.priceRequests.filter(pr => pr.requestDate === dateFilterValue)
     }
   }
 
-  filterRequestsByDate (value) {
-    if (!value) {
-      this.filteredRequests = this.priceRequests
-      this.emit('change')
-      return
+  filterRequests (value, field) {
+    if (field === 'status') {
+      this.statusFilterValue = value
+    } else {
+      this.dateFilterValue = value
     }
-
-    const newFilteredRequests = this.priceRequests.filter(req => req.requestDate === value)
-    if (newFilteredRequests !== this.filteredRequests) {
-      this.filteredRequests = newFilteredRequests
-      this.emit('change')
-    }
+    this._filterRequests()
+    this.emit('change')
   }
 
   approvePriceRequest (id, newStatus) {
@@ -173,13 +174,10 @@ class ApprovalStore extends EventEmitter {
         break
       }
       case 'FILTER': {
-        this.filterRequests(action.value)
+        this.filterRequests(action.value, action.field)
         break
       }
-      case 'FILTER_BY_DATE': {
-        this.filterRequestsByDate(action.value)
-        break
-      }
+
       default : {
         console.log('Unknown action type fired. Action of type ',
           action.actionType, ' was not handled.')

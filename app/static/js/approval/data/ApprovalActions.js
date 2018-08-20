@@ -19,7 +19,8 @@ export function denyRequest (id, newStatus) {
 export function filterRequests (value) {
   ApprovalDispatcher.dispatch({
     actionType: 'FILTER',
-    value
+    value,
+    'field': 'status'
   })
 }
 
@@ -31,7 +32,8 @@ export function initialRequestLoad () {
 
 export function filterRequestsByDate (value) {
   ApprovalDispatcher.dispatch({
-    actionType: 'FILTER_BY_DATE',
-    value
+    actionType: 'FILTER',
+    value,
+    'field': 'requestDate'
   })
 }
