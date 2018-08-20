@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+	{{ super() }}
+</main>
+
+<div class="container">
+<br>
+<br>
+<div class="row">
+	<div class="col col-4">
+	<div id="accordion">
+  <div class="card">
+    <div class='card-header'>
+      <strong>Actions</strong>
+    </div>
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Price Requests
+        </button>
+      </h5>
+    </div>
+    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+        {% for route in routes["price_requests"] %}
+        		<a class="list-group-item list-group-item-action" href='{{ route["route"] }}'> {{ route["display"] }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Edit Reference App Data
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+      	{% for route in routes["editrefs"] %}
+        		<a class="list-group-item list-group-item-action" href='{{ route["route"] }}'> {{ route["display"] }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+</div>
+  
+</div>
+	<div class="col">
+		<h3> My Other Text or content can go over here. </h3>
+		<p> Realistically I won't be able to add tooooo much other stuff by Tuesday </p>
+	</div>
+</div>
+</div>
+</div>
+
+	
+	
+
+	
+	<main>
+	
+{% endblock %}
