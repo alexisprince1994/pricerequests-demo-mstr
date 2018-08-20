@@ -1,7 +1,7 @@
 from flask import Blueprint, url_for, redirect, render_template, flash, request
 from app.user.forms import LoginForm, RegistrationForm
-from app import login_manager, bcrypt
-from app.models import db, User
+from app import login_manager, bcrypt, db
+from app.models import User
 from flask_login import current_user, login_user, logout_user
 
 users = Blueprint('users', __name__, static_folder='./static/dist', 

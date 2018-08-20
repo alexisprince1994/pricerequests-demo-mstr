@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
-from app.models import db, Customer, Product, PriceRequestStatus, PriceRequest
+from app.models import Customer, Product, PriceRequestStatus, PriceRequest
+from app import db
 from flask_login import current_user, login_required
 from sqlalchemy import desc
 import datetime
