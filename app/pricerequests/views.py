@@ -76,6 +76,9 @@ def get_requests():
 @pricerequest.route('/pricerequests/statuschange', methods=['POST'])
 def statuschange():
 
+	if current_user.read_only:
+		return redirect_not_authorized()
+
 	data = request.get_json()
 	pr_id, status = data.get('id'), data.get('status')
 
@@ -97,6 +100,9 @@ def statuschange():
 
 @pricerequest.route('/pricerequests/view')
 def view():
+
+	if current_user.read_only:
+		return redirect_not_authorized()
 
 	return render_template('viewpricerequests.html')
 	
