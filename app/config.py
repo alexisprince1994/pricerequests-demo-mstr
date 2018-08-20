@@ -17,7 +17,9 @@ class DevelopmentConfig(ProductionConfig):
 
 	DEBUG = True
 	# When doing work on static js files, template reload
-	# is needed to see those changes.
+	# is needed to see those changes. Templates won't need to 
+	# necessarily change, but the static JS files attached
+	# to them do.
 	TEMPLATES_AUTO_RELOAD = True
 	SEND_FILE_MAX_AGE_DEFAULT = 0
 	SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
