@@ -14,7 +14,6 @@ def redirect_not_authorized():
 def redirect_register():
 	return redirect(url_for('users.login'))
 
-
 @pricerequest.route('/pricerequests', methods=['GET', 'POST'])
 @login_required
 def pricerequests():
@@ -70,6 +69,8 @@ def get_requests():
 		.join(Product)
 		.order_by(desc(PriceRequest.ludate)).all())
 
+
+	print([price_request_to_json(price_request)['request_reason'] for price_request in price_requests])
 	return jsonify([price_request_to_json(price_request) for price_request in price_requests])
 
 @pricerequest.route('/pricerequests/statuschange', methods=['POST'])
