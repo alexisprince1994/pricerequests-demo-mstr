@@ -32,6 +32,6 @@ def index():
 
 
 @homepage.route('/notauthorized')
-def not_authorzied():
+def not_authorized():
 
 	return render_template('not_authorized.html')
