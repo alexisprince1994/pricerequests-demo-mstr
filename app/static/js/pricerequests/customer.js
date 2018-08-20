@@ -82,7 +82,7 @@ class Customer extends Component {
             options={this.state.options}
             onSearch={query => {
               this.setState({isLoading: true})
-              fetch(`http://127.0.0.1:5000/customers?q=${query}`)
+              fetch(`customers?q=${query}`)
                 .then(res => res.json())
                 .then(json => this.setState({
                   isLoading: false,

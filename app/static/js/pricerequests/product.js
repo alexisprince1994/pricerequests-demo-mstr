@@ -89,7 +89,7 @@ class Product extends Component {
             options={this.state.options}
             onSearch={query => {
               this.setState({isLoading: true})
-              fetch(`http://127.0.0.1:5000/products?q=${query}`)
+              fetch(`products?q=${query}`)
                 .then(res => res.json())
                 .then(json => this.setState({
                   isLoading: false,
