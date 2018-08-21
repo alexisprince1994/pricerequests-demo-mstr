@@ -19,11 +19,6 @@ def create_price_requests(PriceRequest, Product, Customer, db):
 	db.session.commit()
 
 
-
-
-
-
-
 def create_products(Product, db):
 
 	products = ['100 Places to Go While Still Young at Heart',

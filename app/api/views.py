@@ -6,16 +6,18 @@ from sqlalchemy import desc
 
 api = Blueprint('api', __name__)
 
+def make_error(msg):
 
+	return jsonify({'error_message': msg})
 
 @api.route('/api/pricerequest/get')
 def get():
 
-	auth_token = request.headers.get('X-AUTH-TOKEN')
+	auth_token = request.headers.get('X-SLACK-AUTH-TOKEN')
 
 	if auth_token != os.environ.get('SLACK_AUTH_TOKEN'):
-		return make_response(jsonify({'error_message': 
-			'Please attach auth token as header with key SLACK_AUTH_TOKEN'}), 403)
+		return make_response(
+			make_error('Please attach auth token as header with key X-SLACK-AUTH-TOKEN'), 403)
 
 	price_request = (PriceRequest
 		.query
@@ -36,47 +38,45 @@ def get():
 		data_out['id'] = price_request.pricerequestid
 		data_out['statuscode'] = price_request.statuscode
 		data_out['request_date'] = price_request.submittimestamp.date().strftime('%m/%d/%Y')
-		post_url = 'pricerequest/api/post/{}'.format(price_request.pricerequestid)
+		post_url = '/api/pricerequest/post/{}'.format(price_request.pricerequestid)
 		return jsonify({
 		'price_request': data_out, 
 		'post_route': post_url,
 		'actions': ['APPROVED', 'DENIED']})
 	else:
-		return jsonify({
-			'error_message': "No outstanding price requests! You're all caught up!"
-			})
+		return make_error("No outstanding price requests! You're all caught up!")
+		
 
 	
-
-
 @api.route('/api/pricerequest/post/<id>', methods=['POST'])
 def post(id):
 
-	auth_token = request.headers.get('X-AUTH-TOKEN')
+	
+	auth_token = request.headers.get('X-SLACK-AUTH-TOKEN')
 
 	if auth_token != os.environ.get('SLACK_AUTH_TOKEN'):
-		if request.url_root != 'http://127.0.0.1:5000/':
-			return make_response(jsonify({'error_message': 
-			'Please attach auth token as header with key SLACK_AUTH_TOKEN'}), 403)
-			
+		return make_response(make_error('Please attach auth token as header with key X-SLACK-AUTH-TOKEN'), 403)
 
-	data = request.get_json()
-
-	action = data.get('action')
+	action = request.get_json().get('action')
 	
 	price_request = PriceRequest.query.get(id)
 	if price_request is None:
-		return make_response(400,
-			error_message='price request not found for id {}'.format(id))
+		return make_response(
+			make_error('price request not found for id {}'.format(id)), 400)
+			
 	else:
+		if price_request.statuscode != 'SUBMITTED':
+			msg = 'Cannot change a price request from status {} to {} through \
+				the Slack UI. Please go through the web UI.'.format(price_request.statuscode, action)
+			return make_response(make_error(msg), 400)
 		try:
 			price_request.statuscode = action
 			db.session.add(price_request)
 			db.session.commit()
-			return make_response(200)
+			return make_response(make_error(None), 200)
 		except Exception as e:
 			db.session.rollback()
-			return make_response(400, jsonify(str(e)))
+			return make_response(make_error(str(e)), 400)
 
 
 		
