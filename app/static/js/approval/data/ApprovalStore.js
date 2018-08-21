@@ -28,6 +28,11 @@ class ApprovalStore extends EventEmitter {
       return
     }
 
+    if (!isStatusFiltered && !isDateFiltered) {
+      this.filteredRequests = this.priceRequests
+      return
+    }
+
     if (isStatusFiltered) {
       this.filteredRequests = this.priceRequests.filter(pr => pr.status === statusFilterValue)
     } else {
