@@ -31,8 +31,9 @@ class SqlDebuggingConfig(DevelopmentConfig):
 
 	SQLALCHEMY_ECHO = True
 
-class TestingConfig(ProductionConfig):
+class TestingConfig(DevelopmentConfig):
 
 	TESTING = True
 	WTF_CSRF_CHECK_DEFAULT = False
 	LOGIN_DISABLED = True
+	SQLALCHEMY_DATABASE_URI = 'sqlite://'
