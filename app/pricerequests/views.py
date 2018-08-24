@@ -96,8 +96,29 @@ def statuschange():
 
 	return jsonify({'id': pr.pricerequestid, 'error': None, 'statuscode': pr.statuscode})
 
+@pricerequest.route('/pricerequests/delete/<id>', methods=['DELETE'])
+@login_required
+def delete(id):
+
+	if current_user.read_only:
+		return redirect_not_authorized()
+
+	price_request = PriceRequest.query.get(id)
+	if price_request is None:
+		return jsonify({'error': 'Unable to find this price request.'})
+
+	try:
+		db.session.delete(price_request)
+		db.session.commit()
+		return jsonify({'error': None})
+	except Exception as e:
+		db.session.rollback()
+		return jsonify({'error': 'Unable to delete this price request. The following error occured : {}'.format(str(e))})
+
+
 
 @pricerequest.route('/pricerequests/view')
+@login_required
 def view():
 
 	if current_user.read_only:
