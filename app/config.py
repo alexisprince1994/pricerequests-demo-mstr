@@ -20,8 +20,6 @@ class DevelopmentConfig(ProductionConfig):
 	# is needed to see those changes. Templates won't need to 
 	# necessarily change, but the static JS files attached
 	# to them do.
-	TEMPLATES_AUTO_RELOAD = True
-	SEND_FILE_MAX_AGE_DEFAULT = 0
 	SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
 	SECRET_KEY = 'secret key'
 	WTF_CSRF_SECRET_KEY = 'second secret key'
@@ -34,6 +32,6 @@ class SqlDebuggingConfig(DevelopmentConfig):
 class TestingConfig(DevelopmentConfig):
 
 	TESTING = True
-	WTF_CSRF_CHECK_DEFAULT = False
-	LOGIN_DISABLED = True
-	SQLALCHEMY_DATABASE_URI = 'sqlite://'
+	RENDER_TEMPLATES = False
+	WTF_CSRF_ENABLED = False
+	SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
