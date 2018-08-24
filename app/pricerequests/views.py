@@ -73,6 +73,7 @@ def get_requests():
 	return jsonify([price_request_to_json(price_request) for price_request in price_requests])
 
 @pricerequest.route('/pricerequests/statuschange', methods=['POST'])
+@login_required
 def statuschange():
 
 	if current_user.read_only:
@@ -86,6 +87,11 @@ def statuschange():
 		return jsonify({'error': 
 			'price request not found. Please refresh the browser and try again.'})
 
+	status_obj = PriceRequestStatus.query.filter_by(statuscode=status).first()
+	if not status_obj:
+		return jsonify({
+			'error': 'Invalid new status'
+			})
 	try:
 		pr.statuscode = status
 		db.session.add(pr)
@@ -152,7 +158,6 @@ def products():
 		query_results = Product.query.all()
 
 	results = [{'id': product.productid, 'label': product.productname} for product in query_results]
-	print('results are {}'.format(results))
 	return jsonify(results)
 
 @pricerequest.route('/customers')

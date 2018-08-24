@@ -40,9 +40,9 @@ class User(db.Model, LastUpdatedTimestampMixin, UserMixin):
 
     def __repr__(self):
     	return """User(id={}, email={}, username={}, password={},
-    		active={}, confirmed_at={}, read_only={})""".format(self.id, self.email,
+    		active={}, read_only={})""".format(self.id, self.email,
     			self.username, "password redacted", self.active,
-    			self.confirmed_at, self.read_only)
+    			self.read_only)
 
 
 
