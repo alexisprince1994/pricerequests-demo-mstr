@@ -45,6 +45,26 @@ class PriceRequestHeader extends Component {
     })
   }
 
+  buildButtonPressAlert () {
+    // Creates the alert that is displayed after pressing
+    // either the approve or deny button.
+    let btnPressAlert
+    if (this.props.submitted && this.state.displayAlert) {
+      const alertClass = (this.props.error
+        ? 'alert alert-danger' : 'alert alert-success')
+      btnPressAlert = <div className='card-body'>
+        <div className={alertClass}>
+          {this.props.btnPressMessage}
+          <button type='button' className='close' aria-label='Close'
+            onClick={this.toggleDisplayAlert}>
+            <span aria-hidden='true'>&times;</span>
+          </button>
+        </div>
+      </div>
+    }
+    return btnPressAlert
+  }
+
   render () {
     const headerId = 'heading' + this.props.id
     const collapseId = 'collapse' + this.props.id
@@ -89,37 +109,7 @@ class PriceRequestHeader extends Component {
       button2 = ''
     }
 
-    let btnPressAlert
-    if (this.props.submitted && this.state.displayAlert) {
-      if (!this.props.error) {
-        btnPressAlert =
-          <div className='card-body'>
-            <div
-              className='alert alert-success'
-            >
-              {this.props.btnPressMessage}
-              <button type='button' className='close' aria-label='Close'
-                onClick={this.toggleDisplayAlert}>
-                <span aria-hidden='true'>&times;</span>
-              </button>
-            </div>
-          </div>
-      } else {
-        btnPressAlert =
-          <div className='card-body'>
-            <div
-              className='alert alert-danger'
-              onClick={this.toggleDisplayAlert}
-            >
-              {this.props.btnPressMessage}
-              <button type='button' className='close' aria-label='Close'
-                onClick={this.toggleDisplayAlert}>
-                <span aria-hidden='true'>&times;</span>
-              </button>
-            </div>
-          </div>
-      }
-    }
+    const btnPressAlert = this.buildButtonPressAlert()
 
     return (
 

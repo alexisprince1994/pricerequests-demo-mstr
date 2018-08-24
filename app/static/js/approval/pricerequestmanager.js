@@ -24,6 +24,7 @@ class PriceRequestManager extends Component {
     this.parentId = 'priceRequestAccordion'
   }
 
+  // Lifecycle hooks
   componentWillMount () {
     ApprovalStore.on('change', this.reloadRequests)
     ApprovalStore.on('change', this.reloadFilterOptions)
@@ -37,14 +38,9 @@ class PriceRequestManager extends Component {
     ApprovalStore.removeListener('change', this.reloadAlertInfo)
   }
 
+  // Store listeners
   reloadAlertInfo () {
     this.setState(ApprovalStore.getAlertInfo())
-  }
-
-  stopAlertDisplay () {
-    this.setState({
-      displayAlerts: false
-    })
   }
 
   reloadRequests () {
@@ -55,6 +51,11 @@ class PriceRequestManager extends Component {
     this.setState(ApprovalStore.getFilterOptions())
   }
 
+  initialDataLoad () {
+    ApprovalActions.initialRequestLoad()
+  }
+
+  // Action Emitters
   filterRequestsByDate (event) {
     ApprovalActions.filterRequestsByDate(event.target.value)
   }
@@ -63,21 +64,14 @@ class PriceRequestManager extends Component {
     ApprovalActions.filterRequests(event.target.value)
   }
 
-  initialDataLoad () {
-    ApprovalActions.initialRequestLoad()
+  // UI Management
+  stopAlertDisplay () {
+    this.setState({
+      displayAlerts: false
+    })
   }
 
-  render () {
-    const selectOptions = []
-    this.state.filterOptions.map((opt, indx) =>
-      selectOptions.push(<option key={indx}>{opt}</option>))
-
-    const dateFilterOptions = []
-    this.state.dateFilterOptions.map((opt, indx) =>
-      dateFilterOptions.push(<option key={indx}>{opt}</option>))
-
-    const { displayAlerts, alertMessage, isPositive } = this.state
-
+  buildAlert () {
     let alert
     let alertClass
     if (displayAlerts) {
@@ -95,13 +89,25 @@ class PriceRequestManager extends Component {
         </div>
       </div>
     }
+  }
+
+  render () {
+    const selectOptions = []
+    this.state.filterOptions.map((opt, indx) =>
+      selectOptions.push(<option key={indx}>{opt}</option>))
+
+    const dateFilterOptions = []
+    this.state.dateFilterOptions.map((opt, indx) =>
+      dateFilterOptions.push(<option key={indx}>{opt}</option>))
+
+    const { displayAlerts, alertMessage, isPositive } = this.state
+
+    const alert = this.buildAlert()
 
     return (
       <div>
         <div className='container'>
-
           {alert || ''}
-
           <div className='row'>
             <div className='col' />
             <div className='col' />
