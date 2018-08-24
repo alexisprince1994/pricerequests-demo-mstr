@@ -82,12 +82,16 @@ class PriceRequestManager extends Component {
     let alertClass
     if (displayAlerts) {
       alertClass = (isPositive ? 'alert alert-success' : 'alert alert-danger')
-      alert = <div className='row'>
+      alert = <div className='container'>
         <div
           className={alertClass}
           onClick={this.stopAlertDisplay}
         >
           {alertMessage}
+          <button type='button' className='close' aria-label='Close'
+            onClick={this.stopAlertDisplay}>
+            <span aria-hidden='true'>&times;</span>
+          </button>
         </div>
       </div>
     }
@@ -95,9 +99,9 @@ class PriceRequestManager extends Component {
     return (
       <div>
         <div className='container'>
-          <div className='row'>
-            {alert || ''}
-          </div>
+
+          {alert || ''}
+
           <div className='row'>
             <div className='col' />
             <div className='col' />
