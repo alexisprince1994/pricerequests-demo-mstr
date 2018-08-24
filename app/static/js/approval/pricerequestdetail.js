@@ -8,7 +8,9 @@ class PriceRequestDetail extends Component {
   }
 
   render () {
-    const titleText = this.props.requestedUnits + ' of ' + this.props.product + ' at $' + this.props.requestedPrice
+    const titleText = `${this.formatFloat(this.props.requestedUnits, 0)} 
+      of ${this.props.product} at 
+      $${this.formatFloat(this.props.requestedPrice, 2)}`
     const reasonText = this.props.requestReason || 'No request reason provided.'
 
     const currentRevenue = this.props.requestedUnits * this.props.currentPrice
@@ -26,13 +28,23 @@ class PriceRequestDetail extends Component {
     const requestedGPM = this.formatFloat((requestedGrossProfit / requestedRevenue * 100), 2)
     return (
       <div>
-        <div className='card-body'>
-          <h5 className='card-title'>
-            {titleText}
-          </h5>
-          <p>
-            {reasonText}
-          </p>
+        <div className='row'>
+          <div className='col'>
+            <div className='card-body'>
+              <h5 className='card-title'>
+                {titleText}
+              </h5>
+              <p>
+                {reasonText}
+              </p>
+            </div>
+          </div>
+          <div className='col'>
+            <button
+              className='btn btn-danger mr-4 mt-4 float-right'
+              onClick={this.props.deleteRequest}
+            >Delete</button>
+          </div>
         </div>
         <div className='container'>
           <div className='row'>

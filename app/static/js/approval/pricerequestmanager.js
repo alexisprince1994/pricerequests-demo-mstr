@@ -7,23 +7,44 @@ class PriceRequestManager extends Component {
   constructor (props) {
     super(props)
 
-    this.state = {'filteredRequests': [], filterOptions: [], dateFilterOptions: []}
+    this.state = {
+      'filteredRequests': [],
+      filterOptions: [],
+      dateFilterOptions: [],
+      displayAlerts: false,
+      alertMessage: ''
+    }
+
     this.initialDataLoad = this.initialDataLoad.bind(this)
+    this.stopAlertDisplay = this.stopAlertDisplay.bind(this)
     this.reloadRequests = this.reloadRequests.bind(this)
     this.reloadFilterOptions = this.reloadFilterOptions.bind(this)
     this.filterRequestsByDate = this.filterRequestsByDate.bind(this)
+    this.reloadAlertInfo = this.reloadAlertInfo.bind(this)
     this.parentId = 'priceRequestAccordion'
   }
 
   componentWillMount () {
     ApprovalStore.on('change', this.reloadRequests)
     ApprovalStore.on('change', this.reloadFilterOptions)
+    ApprovalStore.on('change', this.reloadAlertInfo)
     this.initialDataLoad()
   }
 
   componentWillUnmount () {
     ApprovalStore.removeListener('change', this.reloadRequests)
     ApprovalStore.removeListener('change', this.reloadFilterOptions)
+    ApprovalStore.removeListener('change', this.reloadAlertInfo)
+  }
+
+  reloadAlertInfo () {
+    this.setState(ApprovalStore.getAlertInfo())
+  }
+
+  stopAlertDisplay () {
+    this.setState({
+      displayAlerts: false
+    })
   }
 
   reloadRequests () {
@@ -55,9 +76,28 @@ class PriceRequestManager extends Component {
     this.state.dateFilterOptions.map((opt, indx) =>
       dateFilterOptions.push(<option key={indx}>{opt}</option>))
 
+    const { displayAlerts, alertMessage, isPositive } = this.state
+
+    let alert
+    let alertClass
+    if (displayAlerts) {
+      alertClass = (isPositive ? 'alert alert-success' : 'alert alert-danger')
+      alert = <div className='row'>
+        <div
+          className={alertClass}
+          onClick={this.stopAlertDisplay}
+        >
+          {alertMessage}
+        </div>
+      </div>
+    }
+
     return (
       <div>
         <div className='container'>
+          <div className='row'>
+            {alert || ''}
+          </div>
           <div className='row'>
             <div className='col' />
             <div className='col' />

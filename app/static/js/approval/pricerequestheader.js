@@ -10,7 +10,12 @@ class PriceRequestHeader extends Component {
     this.denyRequest = this.denyRequest.bind(this)
     this.toggleDisplayAlert = this.toggleDisplayAlert.bind(this)
     this.toggleCollapse = this.toggleCollapse.bind(this)
+    this.deleteRequest = this.deleteRequest.bind(this)
     this.state = {'displayAlert': true, 'isExpanded': false}
+  }
+
+  deleteRequest () {
+    ApprovalActions.deleteRequest(this.props.id)
   }
 
   approveRequest (event) {
@@ -87,27 +92,32 @@ class PriceRequestHeader extends Component {
     let btnPressAlert
     if (this.props.submitted && this.state.displayAlert) {
       if (!this.props.error) {
-        btnPressAlert = <div
-          className='alert alert-success'
-        >
-          {this.props.btnPressMessage}
-          <button type='button' className='close' aria-label='Close'
-            onClick={this.toggleDisplayAlert}>
-            <span aria-hidden='true'>&times;</span>
-          </button>
-
-        </div>
+        btnPressAlert =
+          <div className='card-body'>
+            <div
+              className='alert alert-success'
+            >
+              {this.props.btnPressMessage}
+              <button type='button' className='close' aria-label='Close'
+                onClick={this.toggleDisplayAlert}>
+                <span aria-hidden='true'>&times;</span>
+              </button>
+            </div>
+          </div>
       } else {
-        btnPressAlert = <div
-          className='alert alert-danger'
-          onClick={this.toggleDisplayAlert}
-        >
-          {this.props.btnPressMessage}
-          <button type='button' className='close' aria-label='Close'
-            onClick={this.toggleDisplayAlert}>
-            <span aria-hidden='true'>&times;</span>
-          </button>
-        </div>
+        btnPressAlert =
+          <div className='card-body'>
+            <div
+              className='alert alert-danger'
+              onClick={this.toggleDisplayAlert}
+            >
+              {this.props.btnPressMessage}
+              <button type='button' className='close' aria-label='Close'
+                onClick={this.toggleDisplayAlert}>
+                <span aria-hidden='true'>&times;</span>
+              </button>
+            </div>
+          </div>
       }
     }
 
@@ -148,11 +158,11 @@ class PriceRequestHeader extends Component {
           aria-labelledby={headerId}
           data-parent={this.props.parentId}
         >
-          <div className='card-body'>
-            {this.state.displayAlert ? btnPressAlert : ''}
-          </div>
+
+          {this.state.displayAlert ? btnPressAlert : ''}
 
           <PriceRequestDetail
+            deleteRequest={this.deleteRequest}
             requestedUnits={this.props.requestedUnits}
             cost={this.props.cost}
             product={this.props.productName}

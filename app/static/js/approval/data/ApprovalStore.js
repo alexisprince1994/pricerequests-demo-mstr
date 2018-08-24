@@ -11,6 +11,7 @@ class ApprovalStore extends EventEmitter {
     this.filteredRequests = []
     this.filterOptions = []
     this.dateFilterOptions = []
+    this.alertInfo = {'message': '', 'isPositive': null, 'displayAlerts': false}
   }
 
   _filterRequests () {
@@ -24,7 +25,8 @@ class ApprovalStore extends EventEmitter {
     const dateFilterValue = this.dateFilterValue
 
     if (isStatusFiltered && isDateFiltered) {
-      this.filteredRequests = this.priceRequests.filter(pr => (pr.status === statusFilterValue) && (pr.requestDate === dateFilterValue))
+      this.filteredRequests = this.priceRequests.filter(
+        pr => (pr.status === statusFilterValue) && (pr.requestDate === dateFilterValue))
       return
     }
 
@@ -38,6 +40,35 @@ class ApprovalStore extends EventEmitter {
     } else {
       this.filteredRequests = this.priceRequests.filter(pr => pr.requestDate === dateFilterValue)
     }
+  }
+
+  deleteFromArray (data, id) {
+    if (!data.error) {
+      const filteredIndx = this.filteredRequests.findIndex(pr => pr.id === id)
+      const unfilteredIndx = this.priceRequests.findIndex(pr => pr.id === id)
+      this.filteredRequests.splice(filteredIndx, 1)
+      this.priceRequests.splice(unfilteredIndx, 1)
+      this.alertInfo.isPositive = true
+      this.alertInfo.message = 'Successfully deleted price request.'
+    } else {
+      this.alertInfo.isPositive = false
+      this.alertInfo.message = data.error
+    }
+    this.alertInfo.displayAlerts = true
+    this.emit('change')
+  }
+
+  deletePriceRequest (id) {
+    console.log('calling delete request with id ', id)
+    const deleteFromArray = this.deleteFromArray.bind(this)
+    fetch('/pricerequests/delete/' + id, {
+      'method': 'DELETE',
+      'headers': {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => deleteFromArray(data, id))
   }
 
   filterRequests (value, field) {
@@ -164,6 +195,14 @@ class ApprovalStore extends EventEmitter {
     return {'filterOptions': this.filterOptions, 'dateFilterOptions': this.dateFilterOptions}
   }
 
+  getAlertInfo () {
+    return {
+      'alertMessage': this.alertInfo.message,
+      'isPositive': this.alertInfo.isPositive,
+      'displayAlerts': this.alertInfo.displayAlerts
+    }
+  }
+
   handleActions (action) {
     switch (action.actionType) {
       case 'LOAD': {
@@ -180,6 +219,10 @@ class ApprovalStore extends EventEmitter {
       }
       case 'FILTER': {
         this.filterRequests(action.value, action.field)
+        break
+      }
+      case 'DELETE': {
+        this.deletePriceRequest(action.id)
         break
       }
 

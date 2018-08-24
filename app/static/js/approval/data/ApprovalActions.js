@@ -37,3 +37,10 @@ export function filterRequestsByDate (value) {
     'field': 'requestDate'
   })
 }
+
+export function deleteRequest (id) {
+  ApprovalDispatcher.dispatch({
+    actionType: 'DELETE',
+    id
+  })
+}
