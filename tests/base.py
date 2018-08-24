@@ -10,6 +10,7 @@ class BaseTestCase(TestCase):
 		"""
 		app.config.from_object('app.config.TestingConfig')
 		return app
+	
 
 	def setUp(self):
 		"""
@@ -23,6 +24,8 @@ class BaseTestCase(TestCase):
 		"""
 		Drops database tables and remove session
 		"""
+
 		db.session.remove()
 		db.drop_all()
+		
 

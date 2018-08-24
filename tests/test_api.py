@@ -8,6 +8,10 @@ from app.data import create_data, create_price_requests
 
 class TestApi(BaseTestCase):
 
+	def test_environ_has_token(self):
+
+		self.assertIsNotNone(os.environ.get('SLACK_AUTH_TOKEN'))
+
 	def test_post_approve_twice(self):
 
 		self.create_price_request()
@@ -73,7 +77,7 @@ class TestApi(BaseTestCase):
 				'content-type': 'application/json'
 				}, data=json.dumps({'action': actions[1]}))
 
-			print(response.get_json())
+			
 			self.assertTrue(response.status_code == 403)
 			self.assertTrue(response.get_json()['error_message'] is not None)
 			
