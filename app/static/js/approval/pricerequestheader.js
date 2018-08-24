@@ -9,7 +9,8 @@ class PriceRequestHeader extends Component {
     this.approveRequest = this.approveRequest.bind(this)
     this.denyRequest = this.denyRequest.bind(this)
     this.toggleDisplayAlert = this.toggleDisplayAlert.bind(this)
-    this.state = {'displayAlert': true}
+    this.toggleCollapse = this.toggleCollapse.bind(this)
+    this.state = {'displayAlert': true, 'isExpanded': false}
   }
 
   approveRequest (event) {
@@ -32,13 +33,20 @@ class PriceRequestHeader extends Component {
     })
   }
 
+  toggleCollapse () {
+    const currentState = this.state.isExpanded
+    this.setState({
+      isExpanded: !currentState
+    })
+  }
+
   render () {
     const headerId = 'heading' + this.props.id
     const collapseId = 'collapse' + this.props.id
     const target = '#' + collapseId
     const alertId = 'alert' + this.props.id
 
-    const isExpanded = false
+    const { isExpanded } = this.state
     const buttonText = (isExpanded ? 'Hide' : 'Show')
     const expandedButtonLinkClassName = (isExpanded
       ? 'btn btn-outline-info' : 'btn btn-outline-info collapsed')
@@ -116,6 +124,7 @@ class PriceRequestHeader extends Component {
                   data-target={target}
                   aria-expanded={false}
                   aria-controls={collapseId}
+                  onClick={this.toggleCollapse}
                 >
                   {buttonText}
                 </button>

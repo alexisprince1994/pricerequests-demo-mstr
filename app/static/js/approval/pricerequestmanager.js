@@ -55,7 +55,6 @@ class PriceRequestManager extends Component {
     this.state.dateFilterOptions.map((opt, indx) =>
       dateFilterOptions.push(<option key={indx}>{opt}</option>))
 
-    console.log('this.state.filteredRequests is ', this.state.filteredRequests)
     return (
       <div>
         <div className='container'>
