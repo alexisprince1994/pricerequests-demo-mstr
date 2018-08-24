@@ -11,9 +11,6 @@ from flask_sqlalchemy import SQLAlchemy
 # Internal Packages are listed below in order to avoid
 # circular imports.
 
-
-
-
 app = Flask(__name__, template_folder='./static', static_folder='./static/dist')
 
 # Loading config path from environment variables or defaulting to dev
@@ -25,10 +22,10 @@ app_settings = os.environ.get(
 app.config.from_object(app_settings)
 # Initialize extensions
 db = SQLAlchemy(app)
-
-from .models import User
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+
+from .models import User
 
 @login_manager.user_loader
 def user_loader(id):

@@ -26,7 +26,7 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('There is already a user registered with this email.')
 
 	def validate_password(self, password):
-		if password.lower() == 'password':
+		if password.data.lower() == 'password':
 			raise ValidationError("C'mon, seriously? You can't use password as a password.")
 
 class LoginForm(FlaskForm):
