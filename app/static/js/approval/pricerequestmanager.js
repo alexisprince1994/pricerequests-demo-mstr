@@ -74,6 +74,9 @@ class PriceRequestManager extends Component {
   buildAlert () {
     let alert
     let alertClass
+
+    const { displayAlerts, alertMessage, isPositive } = this.state
+
     if (displayAlerts) {
       alertClass = (isPositive ? 'alert alert-success' : 'alert alert-danger')
       alert = <div className='container'>
