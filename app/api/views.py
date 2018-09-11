@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, Response
 import os
 from app.models import Customer, Product, PriceRequest
 from app import db
@@ -38,10 +38,8 @@ def get():
 		data_out['id'] = price_request.pricerequestid
 		data_out['statuscode'] = price_request.statuscode
 		data_out['request_date'] = price_request.submittimestamp.date().strftime('%m/%d/%Y')
-		post_url = '/api/pricerequest/post/{}'.format(price_request.pricerequestid)
 		return jsonify({
 		'price_request': data_out, 
-		'post_route': post_url,
 		'actions': ['APPROVED', 'DENIED']})
 	else:
 		return make_error("No outstanding price requests! You're all caught up!")
@@ -73,7 +71,7 @@ def post(id):
 			price_request.statuscode = action
 			db.session.add(price_request)
 			db.session.commit()
-			return make_response(make_error(None), 200)
+			return Response(), 204
 		except Exception as e:
 			db.session.rollback()
 			return make_response(make_error(str(e)), 400)

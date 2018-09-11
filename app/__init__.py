@@ -21,8 +21,13 @@ app_settings = os.environ.get(
 
 app.config.from_object(app_settings)
 # Initialize extensions
+
+# Flask Sqlalchemy for database
 db = SQLAlchemy(app)
+# Flask Bcrypt for password hashing
 bcrypt = Bcrypt(app)
+
+# Flask Login for login management
 login_manager = LoginManager(app)
 
 from .models import User
@@ -31,6 +36,7 @@ from .models import User
 def user_loader(id):
 	return User.query.get(id)
 
+# Blueprint imports
 from .user.views import users
 from .pricerequests.views import pricerequest
 from .homepage.views import homepage
