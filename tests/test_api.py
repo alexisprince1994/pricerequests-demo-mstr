@@ -10,14 +10,14 @@ from flask_testing import TestCase
 
 class TestApi(TestCase):
 
+	post_route = '/api/pricerequest/post/'
+
 	def create_app(self):
 		"""
 		Creates an instances of the application w/ testing config.
 		"""
 		app.config.from_object('app.config.TestingConfig')
 		return app
-
-	post_route = '/api/pricerequest/post/'
 
 	def setUp(self):
 
@@ -35,37 +35,53 @@ class TestApi(TestCase):
 
 		db.session.remove()
 		db.drop_all()
-		
+	
+	def get_price_requests(self, token=None):
+		"""
+		If token is none, the environment variable is used. This is so
+		we can also test with differing tokens.
+		:param token: str
+		"""	
+
+		if token is None:
+			token = os.environ.get('SLACK_AUTH_TOKEN')
+
+		return self.client.get('/api/pricerequest/get', headers={
+				'X-SLACK-AUTH-TOKEN': token})
+
+	def post_price_request(self, route, action, token=None):
+
+		if token is None:
+			token = os.environ.get('SLACK_AUTH_TOKEN')
+
+		return self.client.post(route, headers={'X-SLACK-AUTH-TOKEN': token,
+			'content-type': 'application/json'}, data=json.dumps({'action': action}))
+
 
 	def test_environ_has_token(self):
 
 		self.assertIsNotNone(os.environ.get('SLACK_AUTH_TOKEN'))
 
+
+
 	def test_post_approve_twice(self):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			price_request = data['price_request']
 			actions = data['actions']
 			post_route = self.post_route + str(price_request['id'])
 
-			response = self.client.post(post_route, headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN'),
-				'content-type': 'application/json'
-				}, data=json.dumps({'action': actions[0]}))
-
+			response = self.post_price_request(post_route, actions[0])
 			self.assertTrue(response.status_code == 204)
 			self.assertIsNone(response.get_json())
 
-			response = self.client.post(post_route, headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN'),
-				'content-type': 'application/json'
-				}, data=json.dumps({'action': actions[0]}))
-
+			response = self.post_price_request(post_route, actions[0])
+			
 			self.assertTrue(response.status_code == 400)
 			self.assertTrue(response.get_json()['error_message'] is not None)
 
@@ -74,19 +90,21 @@ class TestApi(TestCase):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			price_request = data['price_request']
 			actions = data['actions']
-			post_route = self.post_route + str(price_request['id'])
+			post_route = self.post_route + '400'
 
-			response = self.client.post('/api/pricerequest/post/400', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN'),
-				'content-type': 'application/json'
-				}, data=json.dumps({'action': actions[1]}))
+			# Running for both actions to make sure it isn't the actions
+			# fault that its failing.
+			response = self.post_price_request(post_route, actions[0])
+			self.assertTrue(response.status_code == 400)
+			self.assertTrue(response.get_json()['error_message'] is not None)
 
+			response = self.post_price_request(post_route, actions[1])
 			self.assertTrue(response.status_code == 400)
 			self.assertTrue(response.get_json()['error_message'] is not None)
 
@@ -94,8 +112,7 @@ class TestApi(TestCase):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			price_request = data['price_request']
@@ -115,19 +132,14 @@ class TestApi(TestCase):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			price_request = data['price_request']
 			actions = data['actions']
 			post_route = self.post_route + str(price_request['id'])
 
-			response = self.client.post(post_route, headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN'),
-				'content-type': 'application/json'
-				}, data=json.dumps({'action': actions[1]}))
-
+			response = self.post_price_request(post_route, actions[1])
 			self.assertTrue(response.status_code == 204)
 			self.assertIsNone(response.get_json())
 			
@@ -136,25 +148,15 @@ class TestApi(TestCase):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			price_request = data['price_request']
 			actions = data['actions']
 			post_route = self.post_route + str(price_request['id'])
 
-			print('actions are {}'.format(actions))
-			print('post route is {}'.format(post_route))
-
-			response = self.client.post(post_route, headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN'),
-				'content-type': 'application/json'
-				}, data=json.dumps({'action': actions[0]}))
-
-			print('response status is {}'.format(response.status_code))
-			print('response.get_json() is {}'.format(response.get_json()))
-
+			response = self.post_price_request(post_route, actions[0])
+			
 			self.assertTrue(response.status_code == 204)
 			self.assertIsNone(response.get_json())
 			
@@ -163,8 +165,7 @@ class TestApi(TestCase):
 
 		
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			response = self.get_price_requests()
 			
 			data = response.get_json()
 			self.assertTrue('actions' in data)
@@ -183,8 +184,7 @@ class TestApi(TestCase):
 		db.session.commit()
 
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': os.environ.get('SLACK_AUTH_TOKEN')})
+			response = self.get_price_requests()
 			self.assertTrue(response.status_code == 200)
 			self.assertTrue('error_message' in response.get_json())
 
@@ -209,8 +209,7 @@ class TestApi(TestCase):
 		"""
 
 		with self.client:
-			response = self.client.get('/api/pricerequest/get', headers={
-				'X-SLACK-AUTH-TOKEN': 'BAD_TOKEN_VALUE'})
+			response = self.get_price_requests('BAD TOKEN')
 			self.assertTrue(response.status_code == 403)
 			self.assertTrue('error_message' in response.get_json())
 			self.assertTrue('X-SLACK-AUTH-TOKEN' in response.get_json()['error_message'])
