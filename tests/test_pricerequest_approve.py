@@ -23,6 +23,7 @@ class TestPriceRequest(TestCase):
 		"""
 		Creates the database and tables.
 		"""
+		
 
 		db.create_all()
 		db.session.commit()
