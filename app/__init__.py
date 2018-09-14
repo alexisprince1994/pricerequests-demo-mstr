@@ -7,6 +7,7 @@ from flask import Flask, session, flash
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 
 # Internal Packages are listed below in order to avoid
 # circular imports.
@@ -27,6 +28,9 @@ db = SQLAlchemy(app)
 # Flask Bcrypt for password hashing
 bcrypt = Bcrypt(app)
 
+# Cross Site Request Forgery protection
+csrf = CSRFProtect(app)
+
 # Flask Login for login management
 login_manager = LoginManager(app)
 
@@ -41,10 +45,12 @@ from .user.views import users
 from .pricerequests.views import pricerequest
 from .homepage.views import homepage
 from .api.views import api
+from .editrefs.views import editrefs
 
 # Registering blueprints
 app.register_blueprint(users)
 app.register_blueprint(pricerequest)
 app.register_blueprint(homepage)
 app.register_blueprint(api)
+app.register_blueprint(editrefs)
 login_manager.login_view = 'users.login'

@@ -55,14 +55,14 @@ def post(id):
 	if auth_token != os.environ.get('SLACK_AUTH_TOKEN'):
 		return make_response(make_error('Please attach auth token as header with key X-SLACK-AUTH-TOKEN'), 403)
 
-	action = request.get_json().get('action')
+	
 	
 	price_request = PriceRequest.query.get(id)
 	if price_request is None:
 		return make_response(
 			make_error('price request not found for id {}'.format(id)), 400)
-			
 	else:
+		action = request.get_json().get('action')
 		if price_request.statuscode != 'SUBMITTED':
 			msg = 'Cannot change a price request from status {} to {} through \
 				the Slack UI. Please go through the web UI.'.format(price_request.statuscode, action)

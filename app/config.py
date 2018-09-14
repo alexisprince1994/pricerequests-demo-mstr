@@ -34,4 +34,5 @@ class TestingConfig(DevelopmentConfig):
 	TESTING = True
 	RENDER_TEMPLATES = False
 	WTF_CSRF_ENABLED = False
+	LOGIN_DISABLED = True
 	SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
