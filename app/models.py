@@ -1,5 +1,6 @@
 from app import db
 from flask_login import UserMixin
+import datetime
 
 
 def pk(db):
@@ -15,6 +16,33 @@ class LastUpdatedTimestampMixin(object):
 	crdate = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 	ludate = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), 
 		onupdate=db.func.now())
+
+
+	def to_timestamp(self, field_name):
+		return (getattr(self, field_name) - datetime.datetime(1970, 1, 1)).total_seconds()
+
+
+	
+	def get_pk(obj):
+		if hasattr(obj, '_pk'):
+			return obj._pk
+
+		pk = obj.__table__.primary_key.columns.keys()
+		assert len(pk) == 1, "Tables with multiple column primary keys are not supported"
+		obj._pk = pk[0]
+		return obj._pk
+		
+
+class LastUpdatedUserMixin(object):
+
+	"""
+	Creates columns that track which users are modifying rows for all tables that
+	inherit from this.
+	Last updated username defaults to whoever creates the record on create.
+	"""
+
+	crusername = db.Column(db.String(25), nullable=True)
+	luusername = db.Column(db.String(25), nullable=True)
 
 class User(db.Model, LastUpdatedTimestampMixin, UserMixin):
 
@@ -46,7 +74,7 @@ class User(db.Model, LastUpdatedTimestampMixin, UserMixin):
 
 
 
-class Product(db.Model, LastUpdatedTimestampMixin):
+class Product(db.Model, LastUpdatedTimestampMixin, LastUpdatedUserMixin):
 
 	__tablename__ = 'products'
 
@@ -57,29 +85,38 @@ class Product(db.Model, LastUpdatedTimestampMixin):
 	price = db.Column(db.Float, nullable=False)
 	cost = db.Column(db.Float, nullable=False)
 
-	
+	column_orders = ['productid', 'productname', 'price', 'cost', 'crdate', 'ludate']
 
+	system_columns = ['productid', 'crdate', 'ludate', 'crusername', 'luusername']
 
 	def __repr__(self):
 		return '<Product %r>' % self.productname
 
-class Customer(db.Model, LastUpdatedTimestampMixin):
+class Customer(db.Model, LastUpdatedTimestampMixin, LastUpdatedUserMixin):
 
 	__tablename__ = 'customers'
 
 	customerid = pk(db)
 	customername = db.Column(db.String(50), nullable=False, unique=True)
 
+	column_orders = ['customerid', 'customername', 'crdate', 'crusername', 'ludate', 'luusername']
+	system_columns = ['customerid', 'crdate', 'crusername', 'ludate', 'luusername']
+
 	def __repr__(self):
 		return '<Customer %r>' % (self.customername)
 
-class PriceRequestStatus(db.Model, LastUpdatedTimestampMixin):
+class PriceRequestStatus(db.Model, LastUpdatedTimestampMixin, LastUpdatedUserMixin):
 
 	__tablename__ = 'pricerequeststatuses'
 	pricerequeststatusid = pk(db)
 	statuscode = db.Column(db.String(20), nullable=False, unique=True)
 	statusdescription = db.Column(db.String(50), nullable=False)
 	reviewed = db.Column(db.Boolean)
+
+	column_orders = ['pricerequeststatusid', 'statuscode', 'statusdescription',
+		'reviewed', 'crdate', 'ludate']
+
+	system_columns = ['pricerequeststatusid', 'crdate', 'ludate']
 
 	def __repr__(self):
 		return '<PriceRequestStatus %r %r %r>' % (self.statuscode, 
@@ -112,6 +149,10 @@ class PriceRequest(db.Model):
 		backref=db.backref('pricerequests'), lazy=True)
 	status = db.relationship('PriceRequestStatus', 
 		backref=db.backref('pricerequests'), lazy=True)
+
+	column_orders = ['pricerequestid', 'customerid', 'productid', 'statuscode', 'requestedprice',
+		'requestedunits', 'requestreason', 'submittimestamp', 'ludate']
+	system_columns = ['pricerequestid', 'submittimestamp', 'ludate']
 
 
 	def __repr__(self):

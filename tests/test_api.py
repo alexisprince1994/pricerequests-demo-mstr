@@ -62,8 +62,6 @@ class TestApi(TestCase):
 
 		self.assertIsNotNone(os.environ.get('SLACK_AUTH_TOKEN'))
 
-
-
 	def test_post_approve_twice(self):
 
 		
@@ -96,6 +94,8 @@ class TestApi(TestCase):
 			data = response.get_json()
 			price_request = data['price_request']
 			actions = data['actions']
+			# This is just an example of a bad ID, theoretically this should
+			# pass with any id that isn't between 1 and 10.
 			post_route = self.post_route + '400'
 
 			# Running for both actions to make sure it isn't the actions

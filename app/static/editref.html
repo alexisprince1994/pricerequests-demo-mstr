@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+<link rel="stylesheet" type="text/css" src="{{ url_for('static', filename='editref.css') }}">
+
+{% block html %}
+{{ super() }}
+</main>
+<div class="container">
+  
+  
+   <div class="modal fade" id="findModal" tabindex="-1" role="dialog" aria-labelledby="findModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <h5 class="modal-title" id="findModalTitle"> Find Data </h5>
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+               </button>
+            </div>
+            <div class="modal-body">
+            <!-- TO DO -->
+            <!-- Figure out why the panel isn't showing as panel danger -->
+            <div class="container" id="findModalAlert">
+              <div class="alert alert-danger">
+                <strong>Error!</strong> Invalid filter. Please make sure the column and value are both entered.
+              </div>
+            </div>
+            <!-- <div class="panel panel-danger" id="findModalPanel">
+              <div class="panel-heading">Error!</div>
+              <div class="panel-body">Please select a column for the filter.</div>
+            </div> -->
+        
+               <form id="findFilterForm">
+                  <div class="form-group">
+                     <label for="columnSelect">Select Column</label>
+                     <select class="form-control form-control-sm" id="findModalTableColumnSelector">
+                      
+                     </select>
+                  </div>
+                  <div class="form-group">
+                     <label for="operatorSelect">Select Operator</label>
+                     <select class="form-control form-control-sm" id="findModalTableOperators">
+                        <!-- Populated dynamically -->
+                     </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="valueInput">Search Value</label>
+                    <input class="form-control form-control-sm" type="text" placeholder="Enter Value Here" id="findModalTableValue">
+                      <!-- Javascript by default hides this. Used for a dropdown for
+                        boolean columns only.  -->
+                      <select class="form-control form-control-sm" id="findBooleanValues">
+                      </select>
+                  </div>
+                  <div class="form-check">
+                    <!-- TO DO -->
+                    <!-- DECIDE WHETHER TO IMPLEMENT CASE SENSITIVE SEARCHING -->
+                    <!-- ON ONE HAND, SOMEONE MIGHT NEED IT AND ITS A NEAT FEATURE -->
+                    <!-- ON THE OTHER HAND, THEY PROBABLY DONT AND THEY'RE LYING IF THEY SAY THEY DO. -->
+                     <!-- <input class="form-check-input" type="checkbox" value="" id="chkCaseSensitive">
+                     <label class="form-check-label" for="chkCaseSensitive">Case Sensitive Search</label> -->
+                      <div class="btn-toolbar float-right">
+                        <div class="btn-group mr-2">
+                          <button type="button" class="btn btn-success float-right" id="findModalTableAddFilter">Add Filter</button>
+                        </div>
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-danger float-right" id="findModalTableDeleteFilter" disabled>Delete Filter</button>
+                        </div>
+                      </div>
+                  </div>
+                  
+               </form>
+            </div>
+            <div class="table table-responsive">
+               <table class="table table-bordered table-striped" id="findModalTable">
+                  <caption>List of created filters</caption>
+                  <thead>
+                     <tr>
+                        <th>Column</th>
+                        <th>Operator</th>
+                        <th>Value</th>
+                     </tr>
+                  </thead>
+               </table>
+            </div>
+            <div class="modal-footer">
+              <!-- TO DO -->
+              <!-- IMPLEMENT LAST SEARCH -->
+              <!-- <button type="button" class="btn btn-info">Last Search</button> -->
+               <button type="button" class="btn btn-secondary" data-dismiss="modal" id ="findCloseButton">Close</button>
+               <button type="button" class="btn btn-primary" id="findFindButton">Find</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+  
+  <!-- <div class="container"> -->
+    <div class="table-wrapper">
+
+      <!-- <div class="table-title"> -->
+        <div class="table-title">
+
+        <div class="row">
+          <div class="col-sm-6">
+            <h2>Manage {{ table.table_name }}</h2>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="float-right">
+            <button id="optionsButton" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-cog"></i>
+              <span>Options</span>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" id="findModalOption" data-toggle="modal" data-target="#findModal">Find</a>
+                <a class="dropdown-item disabled noclick" id="showErrors">Show Errors</a>
+                <a class="dropdown-item" id="copyToClipboard">Copy to Clipboard</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" id="saveButton">Save Changes</a>
+              </div>
+            </button>
+            <!-- <a id="saveButton" class="btn btn-info">
+              <i class="fa fa-save"></i>
+                <span>Save</span>
+            </a> -->
+            <button id="deleteButton" class="btn btn-outline-danger" data-toggle="modal"><i class="fa fa-minus-circle"></i><span> Delete</span></button>
+            
+            <button id="addRowButton" class="btn btn-outline-success" data-toggle="modal"><i class="fa fa-plus-square"><span> Add</span></i></button>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <div class="container-fluid">
+    <div class="alert alert-danger" id="editRefUpdateDanger" title="Click to dismiss" style="display:none">
+      <strong>Error!</strong> There was an error saving changes to one or more rows.
+    </div>
+  
+    <div class="alert alert-success" id="editRefUpdateSuccess" title="Click to dismiss" style="display:none">
+      <strong>Success!</strong> Successfully saved all changes.
+    </div>
+  </div>
+
+
+  <div class="container-fluid" style="padding: 2px; ">
+    <div id="toolbar"></div>
+      <table
+        class="table table-hover"
+        width="100%"
+        id="{{ table.table_id }}"
+        cellspacing="0"
+        data-height="1000"
+        data-unique-id="{{ table.unique_id }}"
+        >
+        <thead>
+          <tr>
+            {% for column in table.columns %}
+              <th scope="col"> {{ column.label }}</th>
+            {% endfor %}            
+          </tr>
+        </thead>
+      </table>
+    </div>
+</div>
+</div>
+
+
+<!-- <main> -->
+
+
+{% endblock %}
+
+{% block custom_javascript %}
+{{ super() }}
+<script>
+
+    $(window).ready(function() {
+
+    // Used to display local timezone to user
+    // and convert back to UTC.
+
+    // Variables to hold datatables indexes
+    // These arrays should have index keys
+
+    const url = '{{ submit_url }}';
+    const csrf_token = "{{ csrf_token() }}";
+
+    const tableId = '{{ table.table_id }}';
+    // TO DO
+    // FIND OUT WHETHER I ACTUALLY NEED THE PRIMARY KEY
+    // OTHER THAN THE POSSIBILITY OF MOVING TO A REST API.
+    const tablePk = '{{ table.unique_id }}';
+
+    // Initializing and hiding the divs that show the 
+    // success or error message depending on success or failure
+    // of request.
+    const editRefUpdateSuccess = $("#editRefUpdateSuccess");
+    const editRefUpdateDanger = $("#editRefUpdateDanger");
+    const $showErrorsDropdownItem = $('#showErrors');
+    // editRefUpdateDanger.hide();
+    // editRefUpdateSuccess.hide();
+
+    editRefUpdateSuccess.on('click', function() {
+      editRefUpdateSuccess.hide();
+    });
+
+    editRefUpdateDanger.on('click', function() {
+      editRefUpdateDanger.hide();
+    });
+
+    const columns = {{ table.columns|tojson }};
+    const emptyRow = {};
+
+    columns.forEach(function(col) {
+      emptyRow[col.data] = col.defaultContent;
+    });
+
+    const editrefManager = new TableManager(tableId, columns, emptyRow);
+
+    editrefManager.requestManager = new RequestManager(editRefUpdateSuccess, editRefUpdateDanger, $showErrorsDropdownItem);
+
+    // Button variables across the top
+    const $deleteButton = $('#deleteButton');
+    const $saveButton = $('#saveButton');
+    const $addRowButton = $('#addRowButton');
+    const $viewErrorsButton = $('#viewErrorsButton');
+    var $findTable = $('#findTable');
+
+    $showErrorsDropdownItem.on('click', function(e) {
+      filterTableByClass(editrefManager.$table, 'database-error');
+    });
+
+    $('[data-toggle="tooltip]"').tooltip();
+
+
+    // Sets up the CSRF protection to be send with the 
+    // requests non get requests.
+      $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
+              }
+          }
+      });
+
+    $deleteButton.click(function() {
+      // Gets the index of the row that was selected by the user
+      // and starts tracking it. Also applies the red line style
+      // so the user gets feedback that they "deleted" the row.
+      const deletedIndex = editrefManager.$table.row('.selected').index();
+      editrefManager.tracker.deletedIndex(deletedIndex, editrefManager.$table);
+      
+    });
+
+    $addRowButton.on('click', function() {
+      editrefManager.addEmptyRow();
+    });
+
+    
+  $saveButton.on('click', function() {
+    // TO DO
+    // CONVERT BACK TO JQUERY'S HTTP METHODS TO 
+    // BE ABLE TO USE CSRF PROTECTION.
+
+    const updatedData = editrefManager.getData(editrefManager.tracker.updatedIndexes);
+    const createdData = editrefManager.getData(editrefManager.tracker.createdIndexes);
+    const deletedData = editrefManager.getData(editrefManager.tracker.deletedIndexes);
+    editrefSendRequest({ editrefManager, url, updatedData, createdData, deletedData });
+
+  });
+
+    
+
+    // EVERYTHING BELOW HERE MAKES THE FIND TABLE WORK.
+    
+    const $findModalTable = $('#findModalTable').DataTable({
+    "paging": false,
+    "ordering": false,
+    "searching": false,
+    "scrollY": "200px",
+    "columns": [
+      {"data": "column"},
+      {"data": "operator"},
+      {"data": "value"},
+    ]
+  });
+
+
+  // Needs to be called from inside the modal event post render of CSS
+  // or else the columns take up 1/3 of the modal (total, not per column)
+  // and the "no data available" message still stretches the width
+  // of the modal. Weird how ordering matters here.
+  $('#findModalOption').on('click', function() {
+    $('#findModal').modal('show');
+  });
+
+  $('#findModal').on('shown.bs.modal', function() {
+    // Making sure the columns don't look derpy
+    $findModalTable.columns.adjust().draw();
+  });
+
+  // TO DO
+  // CONSOLIDATE A LOT OF THIS OPERATOR BUILD LOGIC
+  // INTO A NEW CLASS TO MANAGE IT
+
+  const findDefaultOperators = {{ find_table.default_operators|tojson }};
+  const findBooleanOperators = {{ find_table.boolean_operators|tojson }};
+  
+
+  const $findBooleanValues = $('#findBooleanValues');
+  var $findModalTableColumnSelector = $('#findModalTableColumnSelector');
+  var $findModalTableOperators = $('#findModalTableOperators');
+  var $findModalTableValue = $('#findModalTableValue');
+  const $addFilterButton = $('#findModalTableAddFilter');
+  const $findTableDeleteFilter = $('#findModalTableDeleteFilter');
+  const $findModalPanel = $('#findModalAlert');
+  const $findColumnSelector = $('#findModalTableColumnSelector');
+  const $findFindButton = $('#findFindButton');
+  const $findCloseButton = $('#findCloseButton');
+
+
+  const findColumns = {};
+  
+  $.each(columns, function(key, value) {
+    findColumns[value.data] = value.dtype;
+  });
+  
+
+
+  // Allowing the table in the modal form to select rows of the table.
+  // This will allow users to delete existing filters.
+  // Also toggling state of the delete filter button
+  // since they shouldn't be able to delete anything
+  // when they don't have anything selected.
+
+  $('#findModalTable tbody').on('click', 'tr', function() {
+    if ($(this).hasClass('selected')) {
+      $(this).removeClass('selected');
+      $findTableDeleteFilter.prop('disabled', true);
+    } else {
+      $findModalTable.$('tr.selected').removeClass('selected');
+      $(this).addClass('selected');
+      $findTableDeleteFilter.prop('disabled', false);
+    }
+  });
+
+  $findCloseButton.on('click', function() {
+    // Resetting the table if they close the modal
+    // so that what they enter in as filter criteria
+    // won't follow them if they exit.
+    $findModalTable.clear().draw();
+  });
+
+  
+  // Starting with null so people don't accidentally
+  // create a filter on the wrong column.
+    const findColumnOptions = [
+      null,
+    ]
+    
+    $.each(columns, function(key, value) {
+      findColumnOptions.push(value.data);
+    });
+
+    $.each(findColumnOptions, function(key, value) {
+      $findModalTableColumnSelector.append($("<option></option>").attr("value", key).text(value));
+    });
+
+  // Only available options for boolean columns are true/false.
+  const findBooleanValues = {"false": false, "true": true};
+
+
+  const findOperators = {
+    'bool': findBooleanOperators,
+    'other': findDefaultOperators,
+  }
+
+  
+
+  // Loading the default operators for non special dtypes
+  // special dtypes are boolean, date, and datetime.
+  // I'm not really planning on adding too much date/datetime functionality
+  // into this, but I am going to handle booleans.
+  
+  // Building the dropdown of operators.
+  $.each(findDefaultOperators, function(key, value) {
+    $findModalTableOperators.append($("<option></option>").attr("value", key).text(value));
+  });
+
+
+
+  // Building the objects that actually control the DOM based on the logic of 
+  // whatever column and operator is selected.
+  const findValueManager = new findInputManager($findModalTableValue, $findBooleanValues);
+  const findColumnManager = new ColumnManager($findModalTableColumnSelector, findColumns, 
+    $findModalTableOperators, findOperators, findColumnOptions, findValueManager);
+
+  // The "error" panel that shows when people don't fill out the
+  // filter form all the way.
+  $findModalPanel.hide();
+
+  $findColumnSelector.change(function() {
+    findColumnManager.columnChangeHandler();
+  });
+  
+
+  $findModalTableOperators.change(function() {
+    findColumnManager.operatorChangeHandler();
+  });
+
+
+  // Handles the submission of the form. Validates the following:
+  // 1) They selected a column from the dropdown
+  // 2) A value is provided unless the dropdown from
+  //    the column list is a null value
+  // 3) changes the dropdown option to be a true/false only
+  //    if a boolean column was selected.
+
+  $addFilterButton.click(function(e) {
+    // Making sure the modal table doesn't close
+    // due to "successfully submitting a form"
+    e.preventDefault();
+
+    const findColumn = findColumnOptions[$findModalTableColumnSelector.val()];
+
+    console.log('findColumn is ' + findColumn);
+
+    // Showing the error bar if they don't pick a column and bailing early if 
+    // possibly.
+    if (!findColumn) {
+      $findModalPanel.show();
+      return false;
+    } else {
+      $findModalPanel.hide();
+    }
+
+    const findColumnDtype = findColumns[findColumn];
+    const findValue = {};
+
+    if (findColumnDtype === 'bool') {
+      // has to perform a lookup against the dropdown options
+      // since the search value box turns into a dropdown if 
+      // the column is a boolean
+      // Performing the lookup allows us to re-order the 
+      // boolean values to false, true instead of true, false
+      // without massively breaking everything.
+      findValue.operator = findOperators.bool[$findModalTableOperators.val()];
+      findValue.value = findBooleanValues[$findBooleanValues.val()];
+      console.log('findValue is ' + JSON.stringify(findValue))
+      console.log('findBooleanValues is ' + JSON.stringify(findBooleanValues));
+      console.log('$findBooleanValues.val() is ' + $findBooleanValues.val());
+      console.log('findOperators is ' + JSON.stringify(findOperators));
+    } else {
+      // just reads the value from the input box.
+      findValue.value = $findModalTableValue.val();
+      findValue.operator = findOperators.other[$findModalTableOperators.val()];
+    }
+    
+    // Adding new row to the table assuming they filled it out 
+    // correctly.
+
+    const newRow = new FindRow(findColumn, findValue.operator, findValue.value);
+    $findModalTable.row.add(newRow);
+    $findModalTable.columns.adjust().draw();
+  });
+
+  $findTableDeleteFilter.on('click', function() {
+    // Deletes the selected row, then disables itself
+    // since no row is selected to be deleted.
+    $findModalTable.row('.selected').remove().draw();
+    $findTableDeleteFilter.prop('disabled', true);
+  })
+
+  $findFindButton.on('click', function() {
+    const findQueryString = buildGetParams($findModalTable);
+    var ajaxData;
+    if (findQueryString.length != 0) {
+      ajaxData = findQueryString;
+    } else {
+      ajaxData = ['all'];
+    }
+    
+    $.ajax({
+      url: url,
+      type: "GET",
+      data: {'filter': ajaxData},
+      //data: JSON.stringify({'filter': ajaxData}),
+      // dataType: 'json',
+      // contentType: 'application/json',
+      
+    }).done(function(response) {
+        console.log(response);
+        editrefManager.initialDataLoad(response);
+
+        // loadData($table, tableId, response, columns, editableColumnDefs, userUTCOffset, tracker);
+
+        // $table.rows.add(response).draw();
+        $('#findModal').modal('hide');
+      });
+    
+  });
+  });
+</script>
+  
+{% endblock %}

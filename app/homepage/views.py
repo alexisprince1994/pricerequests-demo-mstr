@@ -23,9 +23,9 @@ def index():
 
 	if not current_user.read_only:
 		routes['editrefs'] = [
-			{'display': 'Customers', 'route': '/editrefs/customers'}, 
-			{'display': 'Price Request Statuses', 'route': '/editrefs/pricerequeststatuses'},
-			{'display': 'Products', 'route': '/editrefs/products'}
+			{'display': 'Customers', 'route': '/editref/customer'}, 
+			{'display': 'Price Request Statuses', 'route': '/editref/pricerequeststatus'},
+			{'display': 'Products', 'route': '/editref/product'}
 		]
 
 	return render_template('homepage.html', routes=routes, read_only=current_user.read_only)
