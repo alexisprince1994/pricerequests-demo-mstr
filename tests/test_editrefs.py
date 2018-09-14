@@ -1,5 +1,6 @@
 from flask import url_for
 import time
+import copy
 import unittest
 import json
 import os
@@ -14,6 +15,13 @@ class TestEditReference(TestCase):
 
 	admin_email = 'admin@example.com'
 	admin_password = 'password1'
+
+	def create_app(self):
+		"""
+		Creates an instances of the application w/ testing config.
+		"""
+		app.config.from_object('app.config.TestingConfig')
+		return app
 
 	def post(self, data):
 
@@ -33,13 +41,6 @@ class TestEditReference(TestCase):
 	def get(self, data):
 
 		return self.client.get(self.route, params=data)
-
-	def create_app(self):
-		"""
-		Creates an instances of the application w/ testing config.
-		"""
-		app.config.from_object('app.config.TestingConfig')
-		return app
 
 	def create_user(self, username, email, password, read_only, active):
 
@@ -94,6 +95,43 @@ class BaseEditReferenceTests(object):
 			self.assertTrue(response.status_code, 302)
 			self.assertTrue('login' in response.location)
 
+	def test_has_editref_class_attrs(self):
+
+		self.assertTrue(hasattr(self.obj, 'system_columns'))
+		self.assertTrue(hasattr(self.obj, 'column_orders'))
+
+	def test_bad_post_non_unique(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			self.post(self.valid_post_data)
+
+			test_data = self.valid_post_data[0]
+			response = self.post([test_data])
+			payload = response.get_json()
+			self.assert200(response)
+			self.assertTrue(payload['request_had_errors'])
+			self.assertTrue('unique' in payload['data'][0]['error'].lower())
+			self.assertFalse(payload['data'][0]['modified_ok'])
+			
+
+	def test_bad_post_null(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			# You need to copy otherwise input data for the rest of tests will also be 
+			# modified.
+			test_data = self.valid_post_data[0].copy()
+			for key in test_data.keys():
+				if key != 'dt_index':
+					test_data[key] = None
+
+			response = self.post([test_data])
+			self.assert200(response)
+			payload = response.get_json()
+			self.assertTrue(payload['request_had_errors'])
+			
+
 	def test_successful_multiple_put(self):
 
 		with self.client:
@@ -115,7 +153,6 @@ class BaseEditReferenceTests(object):
 			self.assert200(response)
 			self.assertFalse(payload['request_had_errors'])
 
-			
 
 	def test_successful_single_put(self):
 
@@ -184,8 +221,9 @@ class BaseEditReferenceTests(object):
 			payload = response.get_json()
 
 			self.assert200(response)
-
+			print('payload is {}'.format(payload))
 			self.assertFalse(payload['request_had_errors'])
+			
 
 
 	def test_successful_multiple_post(self):

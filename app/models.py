@@ -85,7 +85,7 @@ class Product(db.Model, LastUpdatedTimestampMixin, LastUpdatedUserMixin):
 	price = db.Column(db.Float, nullable=False)
 	cost = db.Column(db.Float, nullable=False)
 
-	column_orders = ['productid', 'productname', 'price', 'cost', 'crdate', 'ludate']
+	column_orders = ['productid', 'productname', 'price', 'cost', 'crdate', 'crusername', 'ludate', 'luusername']
 
 	system_columns = ['productid', 'crdate', 'ludate', 'crusername', 'luusername']
 
@@ -114,9 +114,9 @@ class PriceRequestStatus(db.Model, LastUpdatedTimestampMixin, LastUpdatedUserMix
 	reviewed = db.Column(db.Boolean)
 
 	column_orders = ['pricerequeststatusid', 'statuscode', 'statusdescription',
-		'reviewed', 'crdate', 'ludate']
+		'reviewed', 'crdate', 'crusername', 'luusername', 'ludate']
 
-	system_columns = ['pricerequeststatusid', 'crdate', 'ludate']
+	system_columns = ['pricerequeststatusid', 'crdate', 'ludate', 'crusername', 'luusername']
 
 	def __repr__(self):
 		return '<PriceRequestStatus %r %r %r>' % (self.statuscode, 
