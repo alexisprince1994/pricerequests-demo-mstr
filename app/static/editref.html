@@ -1,13 +1,10 @@
 {% extends "base.html" %}
-<link rel="stylesheet" type="text/css" src="{{ url_for('static', filename='editref.css') }}">
 
 {% block html %}
 {{ super() }}
 </main>
 <div class="container">
-  
-  
-   <div class="modal fade" id="findModal" tabindex="-1" role="dialog" aria-labelledby="findModalCenterTitle" aria-hidden="true">
+     <div class="modal fade" id="findModal" tabindex="-1" role="dialog" aria-labelledby="findModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
          <div class="modal-content">
             <div class="modal-header">
@@ -106,7 +103,7 @@
 
           <div class="col-sm-6">
             <div class="float-right">
-            <button id="optionsButton" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="optionsButton" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fa fa-cog"></i>
               <span>Options</span>
               <div class="dropdown-menu">
@@ -121,9 +118,11 @@
               <i class="fa fa-save"></i>
                 <span>Save</span>
             </a> -->
-            <button id="deleteButton" class="btn btn-outline-danger" data-toggle="modal"><i class="fa fa-minus-circle"></i><span> Delete</span></button>
+            <a id="deleteButton" class="btn btn-danger" data-toggle="modal"><i class="fa fa-minus-circle"></i><span>Delete </span></a>
+            <a id="addRowButton" class="btn btn-success" data-toggle="modal"><i class="fa fa-plus-circle"></i><span> Add </span></a>
+            <!-- <button id="deleteButton" class="btn btn-outline-danger" data-toggle="modal"><i class="fa fa-minus-circle"></i><span> Delete</span></button>
             
-            <button id="addRowButton" class="btn btn-outline-success" data-toggle="modal"><i class="fa fa-plus-square"><span> Add</span></i></button>
+            <button id="addRowButton" class="btn btn-outline-success" data-toggle="modal"><i class="fa fa-plus-square"><span> Add</span></i></button> -->
             
             </div>
           </div>
