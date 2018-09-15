@@ -221,12 +221,14 @@ class EditReference(object):
 					client_record['modified_ok'] = False
 					client_record['error'] = error
 					yield client_record
+					continue
 					
 				self.db.session.add(server_instance)
 				self.db.session.commit()
 				client_record['server_data'] = self.sqlalchemy_converter(server_instance, timestamp_columns=['crdate', 'ludate'])
 				client_record['modified_ok'] = True
 				yield client_record
+				continue
 			except IntegrityError as e:
 				self.db.session.rollback()
 				client_record['modified_ok'] = False
@@ -239,6 +241,7 @@ class EditReference(object):
 					client_record['error'] = str(e)
 
 				yield client_record
+				continue
 
 			except Exception as e:
 				self.db.session.rollback()
@@ -246,6 +249,7 @@ class EditReference(object):
 				client_record['client_data'] = client_row
 				client_record['modified_ok'] = False
 				yield client_record
+				continue
 
 	def confirm_instance_exists(self, client_row):
 		# What if pk doesn't exist? They shouldnt be able to send a request

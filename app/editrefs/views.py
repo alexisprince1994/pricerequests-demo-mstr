@@ -11,12 +11,18 @@ from app.findtable import FindTable
 from flask_login import current_user, login_required
 from app.datatables import DataTable
 
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+
 editrefs = Blueprint('editrefs', __name__)
 
 @editrefs.route('/editref/customer', methods=['POST', 'PUT', 'DELETE', 'GET'])
 @login_required
 def editref_customer():
 
+	logging.debug('current_user from editref route customer is {}'.format(current_user))
 	response = []
 	obj = Customer
 
