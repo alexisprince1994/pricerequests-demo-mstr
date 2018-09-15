@@ -4,8 +4,11 @@ import os
 
 # External Packages needed
 from flask import Flask, session, flash
-from flask_login import LoginManager
+
+# Flask Extensions
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
@@ -19,6 +22,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 csrf = CSRFProtect()
 login_manager = LoginManager()
+migrate = Migrate()
 
 # Import required after db declaration
 from .models import User
@@ -43,6 +47,7 @@ def create_app(config=None):
 
 	# Flask Sqlalchemy for database
 	db.init_app(app)
+	migrate.init_app(app, db)
 	# Flask Bcrypt for password hashing
 	bcrypt.init_app(app)
 
