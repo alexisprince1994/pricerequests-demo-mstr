@@ -31,7 +31,7 @@ from .models import User
 def user_loader(id):
 	return User.query.get(id)
 
-def create_app(config=None):
+def create_app(config):
 
 	app = Flask(__name__, template_folder='./static', static_folder='./static/dist')
 
@@ -74,4 +74,4 @@ def create_app(config=None):
 
 	return app
 
-app = create_app()
+app = create_app('app.config.ProductionConfig')
