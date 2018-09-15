@@ -20,7 +20,7 @@ class DevelopmentConfig(ProductionConfig):
 	# is needed to see those changes. Templates won't need to 
 	# necessarily change, but the static JS files attached
 	# to them do.
-	SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
+	SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///test.db'
 	SECRET_KEY = 'secret key'
 	WTF_CSRF_SECRET_KEY = 'second secret key'
 	SECURITY_PASSWORD_SALT = 'super salty'

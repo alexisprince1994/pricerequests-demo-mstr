@@ -22,7 +22,6 @@ class LastUpdatedTimestampMixin(object):
 		return (getattr(self, field_name) - datetime.datetime(1970, 1, 1)).total_seconds()
 
 
-	
 	def get_pk(obj):
 		if hasattr(obj, '_pk'):
 			return obj._pk

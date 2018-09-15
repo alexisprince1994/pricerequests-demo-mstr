@@ -23,7 +23,7 @@ def sqlalchemy_converter(model, data, timestamp_columns=None, column_exclusions=
 		for col in columns:
 			if timestamp_columns:
 				if col in timestamp_columns:
-					data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1)).total_seconds()
+					data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)).total_seconds()
 				else:
 					data_dict[str(col)] = getattr(instance, col)
 			else:
