@@ -13,8 +13,8 @@ class LastUpdatedTimestampMixin(object):
 	Last update defaults to now for newly created records.
 	"""
 	
-	crdate = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
-	ludate = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), 
+	crdate = db.Column(db.DateTime(), server_default=db.func.now())
+	ludate = db.Column(db.DateTime(), server_default=db.func.now(), 
 		onupdate=db.func.now())
 
 

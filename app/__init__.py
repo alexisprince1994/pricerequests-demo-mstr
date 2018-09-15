@@ -74,4 +74,4 @@ def create_app(config):
 
 	return app
 
-app = create_app('app.config.ProductionConfig')
+app = create_app(None)
