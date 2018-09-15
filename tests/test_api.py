@@ -19,22 +19,34 @@ class TestApi(TestCase):
 		app.config.from_object('app.config.TestingConfig')
 		return app
 
-	def setUp(self):
+	# @classmethod
+	# def setUpClass(cls):
+	# 	super(TestApi, cls).setUpClass()
+		
+		
 
+	# @classmethod
+	# def tearDownClass(cls):
+	# 	super(TestApi, cls).tearDownClass()
+		
+
+
+	def setUp(self):
 		db.create_all()
 		db.session.commit()
 		create_data(Product, Customer, db, PriceRequestStatus)
 		create_price_requests(PriceRequest, Product, Customer, db)
 
-		db.session.commit()
-
 	def tearDown(self):
 		"""
 		Drops database tables and remove session
 		"""
-
 		db.session.remove()
 		db.drop_all()
+		
+
+		# db.session.remove()
+		# db.drop_all()
 	
 	def get_price_requests(self, token=None):
 		"""

@@ -1,15 +1,15 @@
 from flask import url_for
 import time
-import copy
+import logging
+import datetime
 import unittest
 import json
 import os
-from app import app, db, bcrypt
-from app.models import User, Customer
+from app import create_app, db, bcrypt
+from app.models import User, Customer, Product
 from flask_testing import TestCase
 
-
-
+logging.basicConfig(level=logging.INFO)
 
 class TestEditReference(TestCase):
 
@@ -20,7 +20,8 @@ class TestEditReference(TestCase):
 		"""
 		Creates an instances of the application w/ testing config.
 		"""
-		app.config.from_object('app.config.TestingConfig')
+		app = create_app('app.config.TestingConfig')
+		
 		return app
 
 	def post(self, data):
@@ -68,7 +69,7 @@ class TestEditReference(TestCase):
 
 	def setUp(self):
 		"""
-		Creates the database and tables.
+		Creates the database and tables, as well as an admin user.
 		"""
 
 		db.create_all()
@@ -92,6 +93,7 @@ class BaseEditReferenceTests(object):
 
 		with self.client:
 			response = self.post(self.valid_post_data)
+			logging.debug('response is {}'.format(response))
 			self.assertTrue(response.status_code, 302)
 			self.assertTrue('login' in response.location)
 
@@ -104,6 +106,8 @@ class BaseEditReferenceTests(object):
 
 		with self.client:
 			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			logging.debug('login_response from test_bad_post_non_unique is {}'.format(login_response))
+
 			self.post(self.valid_post_data)
 
 			test_data = self.valid_post_data[0]
@@ -114,7 +118,6 @@ class BaseEditReferenceTests(object):
 			self.assertTrue('unique' in payload['data'][0]['error'].lower())
 			self.assertFalse(payload['data'][0]['modified_ok'])
 			
-
 	def test_bad_post_null(self):
 
 		with self.client:
@@ -131,7 +134,6 @@ class BaseEditReferenceTests(object):
 			payload = response.get_json()
 			self.assertTrue(payload['request_had_errors'])
 			
-
 	def test_successful_multiple_put(self):
 
 		with self.client:
@@ -153,7 +155,6 @@ class BaseEditReferenceTests(object):
 			self.assert200(response)
 			self.assertFalse(payload['request_had_errors'])
 
-
 	def test_successful_single_put(self):
 
 		with self.client:
@@ -166,7 +167,7 @@ class BaseEditReferenceTests(object):
 
 			instance_pk = test_data[table_pk]
 			instance = self.obj.query.get(instance_pk)
-			
+
 			test_data['dt_index'] = 0
 			test_data['ludate'] = instance.to_timestamp('ludate')
 
@@ -175,6 +176,66 @@ class BaseEditReferenceTests(object):
 			self.assert200(response)
 			self.assertFalse(payload['request_had_errors'])
 			
+
+	def test_bad_single_put_to_null(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			self.post(self.valid_post_data)
+
+			test_data = self.valid_put_data[0].copy()
+			instance = self.obj.query.first()
+			table_pk = instance.get_pk()
+
+			for key, val in test_data.items():
+				if key != table_pk:
+					test_data[key] = None
+
+			instance_pk = test_data[table_pk]
+			instance = self.obj.query.get(instance_pk)
+			
+			test_data['dt_index'] = 0
+			test_data['ludate'] = instance.to_timestamp('ludate')
+
+			response = self.put([test_data])
+			payload = response.get_json()
+			self.assert200(response)
+			self.assertTrue(payload['request_had_errors'])
+	
+	def test_put_one_good_one_bad(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			self.post(self.valid_post_data)
+
+			test_data = self.valid_put_data[0].copy()
+			instance = self.obj.query.first()
+			self.assertIsNotNone(instance)
+			table_pk = instance.get_pk()
+
+			for key, val in test_data.items():
+				if key != table_pk:
+					test_data[key] = None
+
+			instance_pk = test_data[table_pk]
+			instance = self.obj.query.get(instance_pk)
+			
+			test_data['dt_index'] = 0
+			test_data['ludate'] = instance.to_timestamp('ludate')
+
+			good_update = self.valid_put_data[1].copy()
+			instance_pk = good_update[table_pk]
+			instance = self.obj.query.get(instance_pk)
+			good_update['dt_index'] = 1
+			good_update['ludate'] = instance.to_timestamp('ludate')
+			self.assertIsNotNone(instance)
+
+			response = self.put([test_data, good_update])
+			payload = response.get_json()
+			self.assert200(response)
+			self.assertTrue(payload['request_had_errors'])
+			logging.info('payload from one good one bad is {}'.format(payload))
+
 	def test_put_outdated_timestamp(self):
 
 		with self.client:
@@ -221,10 +282,7 @@ class BaseEditReferenceTests(object):
 			payload = response.get_json()
 
 			self.assert200(response)
-			print('payload is {}'.format(payload))
 			self.assertFalse(payload['request_had_errors'])
-			
-
 
 	def test_successful_multiple_post(self):
 
@@ -236,6 +294,36 @@ class BaseEditReferenceTests(object):
 
 			self.assert200(response)
 			self.assertFalse(payload['request_had_errors'])
+
+	def test_delete_outdated_timestamp(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password)
+			self.post(self.valid_post_data)
+
+			
+			instance = self.obj.query.first()
+			self.assertIsNotNone(instance)
+
+			test_data = self.valid_post_data[0].copy()
+
+			
+			
+			# Sleeping is important because otherwise it'll do the test so fast that
+			# it won't recognize the error.
+			time.sleep(1)
+
+			test_data['dt_index'] = 0
+			test_data['ludate'] = datetime.datetime.now().timestamp()
+
+			response = self.put([test_data])
+			payload = response.get_json()
+			
+			# 200 Status because we handled it successfully
+			self.assert200(response)
+			self.assertTrue(payload['request_had_errors'])
+			self.assertIsNotNone(payload['data'][0]['error'])		
+
 
 	def test_successful_single_delete(self):
 
@@ -275,13 +363,8 @@ class BaseEditReferenceTests(object):
 			instance = self.obj.query.first()
 			self.assertIsNone(instance)
 	
-	
 
-
-
-
-
-class TestCustomerEditReference(TestEditReference, BaseEditReferenceTests):
+class TestCustomerEditReference(BaseEditReferenceTests, TestEditReference):
 
 	route = '/editref/customer'
 	obj = Customer
@@ -291,19 +374,15 @@ class TestCustomerEditReference(TestEditReference, BaseEditReferenceTests):
 
 	valid_put_data = [{'customerid': 1, 'customername': 'UPDATED FIRST CUSTOMER'}, {'customerid': 2, 'customername': 'UPDATED SECOND CUSTOMER'}]
 
-	# def test_successful_delete_customer(self):
+class TestProductEditReference(BaseEditReferenceTests, TestEditReference):
 
-	# 	with self.client:
-	# 		login_response = self.login_user('admin@example.com', 'password1', follow_redirects=True)
-	# 		response = self.post(self.valid_post_data)
-	# 		customer = Customer.query.first()
-	# 		response = self.delete([{'dt_index': 0, 'customerid': customer.customerid, 'ludate': customer.to_timestamp('ludate')}])
-	# 		# print('response.status_code is {}'.format(response.status_code))
-	# 		# print('response.get_json() is {}'.format(response.get_json()))
-	# 		payload = response.get_json()
-	# 		self.assertFalse(payload['request_had_errors'])
-	# 		self.assertTrue(payload['data'][0]['modified_ok'])
-	# 		self.assert200(response)
+	route = '/editref/product'
+	obj = Product
 
+	valid_post_data = [{'productid': 0, 'productname': 'my first product', 'price': 12.5, 'cost': 10, 'dt_index': 0},
+		{'productid': 0, 'productname': 'my second product', 'price': 15, 'cost': 7, 'dt_index': 1},
+		{'productid': 0, 'productname': 'my third product', 'price': 2000, 'cost': 150, 'dt_index': 2}]
 
-
+	valid_put_data = [{'productid': 1, 'productname': 'MY UPDATED FIRST PRODUCT', 'price': 12.5, 'cost': 10, 'dt_index': 0},
+		{'productid': 2, 'productname': 'my second product', 'price': 90, 'cost': 7, 'dt_index': 1},
+		{'productid': 3, 'productname': 'MY UPDATED THIRD PRODUCT', 'price': 16, 'cost': 4, 'dt_index': 2}]	

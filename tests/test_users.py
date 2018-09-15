@@ -17,23 +17,20 @@ class TestUserAuth(TestCase):
 		app.config.from_object('app.config.TestingConfig')
 		return app
 	
-
-	def setUp(self):
-		"""
-		Creates the database and tables.
-		"""
+	@classmethod
+	def setUpClass(cls):
 
 		db.create_all()
 		db.session.commit()
-
-		self.test_user = User(username='TEST', 
+		cls.test_user = User(username='TEST', 
 			email='admin@example.com', 
 			password=bcrypt.generate_password_hash('password1').decode('utf-8'),
 			read_only=False, active=True)
-		db.session.add(self.test_user)
+		db.session.add(cls.test_user)
 		db.session.commit()
 
-	def tearDown(self):
+	@classmethod
+	def tearDownClass(cls):
 		"""
 		Drops database tables and remove session
 		"""
