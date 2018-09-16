@@ -31,7 +31,7 @@ class SqlDebuggingConfig(DevelopmentConfig):
 
 class TestingConfig(DevelopmentConfig):
 
-	
+	SQLALCHEMY_DATABASE_URI = 'postgres://apptesting:test@localhost:5432/app_test'
 	RENDER_TEMPLATES = False
 	WTF_CSRF_ENABLED = False
 	SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
