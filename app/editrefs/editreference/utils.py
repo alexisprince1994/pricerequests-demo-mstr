@@ -1,6 +1,9 @@
 import datetime
 from datetime import timezone
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 def sqlalchemy_converter(model, data, timestamp_columns=None, column_exclusions=None):
 	"""
 	:param model: object, flask sqlalchemy model
@@ -23,7 +26,11 @@ def sqlalchemy_converter(model, data, timestamp_columns=None, column_exclusions=
 		for col in columns:
 			if timestamp_columns:
 				if col in timestamp_columns:
-					data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)).total_seconds()
+					logging.debug('timestamp column {} is {}'.format(col, getattr(instance, col)))
+					logging.debug('timestamp column {} has timestamp {}'.format(col, getattr(instance, col).timestamp()))
+					logging.debug('timestamp column {} has tz info {}'.format(col, getattr(instance, col).tzinfo))
+					data_dict[str(col)] = getattr(instance, col).timestamp()
+					# data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)).total_seconds()
 				else:
 					data_dict[str(col)] = getattr(instance, col)
 			else:

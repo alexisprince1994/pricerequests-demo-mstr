@@ -39,9 +39,9 @@ class TestEditReference(TestCase):
 		return self.client.put(self.route, headers={'content-type': 'application/json'},
 			data=json.dumps(data))
 
-	def get(self, data):
+	def get(self, query_string):
 
-		return self.client.get(self.route, params=data)
+		return self.client.get(self.route, query_string=query_string)
 
 	def create_user(self, username, email, password, read_only, active):
 
@@ -93,7 +93,7 @@ class BaseEditReferenceTests(object):
 
 		with self.client:
 			response = self.post(self.valid_post_data)
-			logging.debug('response is {}'.format(response))
+			
 			self.assertTrue(response.status_code, 302)
 			self.assertTrue('login' in response.location)
 
@@ -101,6 +101,18 @@ class BaseEditReferenceTests(object):
 
 		self.assertTrue(hasattr(self.obj, 'system_columns'))
 		self.assertTrue(hasattr(self.obj, 'column_orders'))
+
+	def test_get_all_records(self):
+
+		with self.client:
+			login_response = self.login_user(self.admin_email, self.admin_password, follow_redirects=True)
+			self.post(self.valid_post_data)
+
+			response = self.get({'filter[]': ['all']})
+			payload = response.get_json()
+
+			db_rows = self.obj.query.count()
+			self.assertEqual(len(payload), db_rows)
 
 	def test_bad_post_non_unique(self):
 
