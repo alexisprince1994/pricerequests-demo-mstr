@@ -19,7 +19,8 @@ class LastUpdatedTimestampMixin(object):
 
 
 	def to_timestamp(self, field_name):
-		return (getattr(self, field_name) - datetime.datetime(1970, 1, 1)).total_seconds()
+		return getattr(self, field_name).timestamp()
+		
 
 
 	def get_pk(obj):

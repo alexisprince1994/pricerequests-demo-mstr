@@ -269,7 +269,7 @@ class EditReference(object):
 	def compare_lastupdates(client_row, server_instance):
 		
 		client_ludate = client_row['ludate']
-		server_ludate = (server_instance.ludate - datetime.datetime(1970, 1, 1)).total_seconds()
+		server_ludate = server_instance.ludate.timestamp()
 		if int(client_ludate) != int(server_ludate):
 			raise ClientServerException("This row is out of sync with the server. Please reload the page.")
 		return
