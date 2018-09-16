@@ -14,7 +14,7 @@ from app.datatables import DataTable
 import logging
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 editrefs = Blueprint('editrefs', __name__)
 

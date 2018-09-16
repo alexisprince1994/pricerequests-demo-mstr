@@ -9,6 +9,82 @@ from app.data import create_data, create_price_requests
 from flask_login import login_user, current_user
 from flask_testing import TestCase
 
+
+class TestPriceRequestUIEndPoints(TestCase):
+
+	def create_app(self):
+		"""
+		Creates an instances of the application w/ testing config.
+		"""
+		app.config.from_object('app.config.TestingConfig')
+		return app
+
+	def setUp(self):
+
+		db.create_all()
+		db.session.commit()
+
+		self.test_user = User(username='TEST', 
+			email='admin@example.com', 
+			password=bcrypt.generate_password_hash('password1').decode('utf-8'),
+			read_only=False, active=True)
+
+		db.session.add(self.test_user)
+		db.session.commit()
+
+		create_data(Product, Customer, db, PriceRequestStatus)
+
+	def tearDown(self):
+
+		db.session.remove()
+		db.drop_all()
+
+	def login_user(self):
+
+		self.client.post(url_for('users.login'), data={
+			'email': self.test_user.email, 'password': 'password1'
+			})
+
+
+	def test_customer_search_gives_results(self):
+
+		self.login_user()
+		response = self.client.get(url_for('pricerequest.customers'), query_string={'q': 'Sony'})
+		self.assertEqual(len(response.get_json()), 1)
+
+	def test_customer_search_not_case_sensitive(self):
+
+		self.login_user()
+		response = self.client.get(url_for('pricerequest.customers'), query_string={'q': 'sony'})
+		self.assertEqual(len(response.get_json()), 1)
+
+	def test_product_search_gives_results(self):
+
+		self.login_user()
+		response = self.client.get(url_for('pricerequest.products'), query_string={'q': 'Art'})
+		self.assertEqual(len(response.get_json()), 3)
+
+	def test_product_search_bad_term(self):
+
+		self.login_user()
+		response = self.client.get(url_for('pricerequest.products'), query_string={'q': 
+			'my incredibly long and very precise missing search term'})
+		self.assertEqual(len(response.get_json()), 0)
+
+	def test_product_search_proper_format(self):
+
+		self.login_user()
+		response = self.client.get(url_for('pricerequest.products'), query_string={'q': 'Art'})
+		for row in response.get_json():
+			self.assertIsNotNone(row['id'])
+			self.assertIsNotNone(row['label'])
+
+
+	def test_customer_search(self):
+
+		self.login_user()
+
+
 class TestPriceRequest(TestCase):
 
 	def create_app(self):

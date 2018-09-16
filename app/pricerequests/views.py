@@ -27,7 +27,7 @@ def pricerequests():
 
 	if request.method == 'POST':
 		data = request.get_json()
-		print('data from pricerequest route is {}'.format(data))
+		
 		try:
 			pr = PriceRequest(customerid=data.get('customerid'), productid=data.get('productid'),
 				statuscode='SUBMITTED', requestedprice=data.get('requestedPrice'), 
@@ -36,7 +36,7 @@ def pricerequests():
 			db.session.commit()
 			return jsonify({'id': pr.pricerequestid, 'message': 'Submitted successfully'})
 		except Exception as e:
-			print('exception hit. rollback caused. {}'.format(e))
+			
 			db.session.rollback()
 			return jsonify({'id': None, 'message': 'Error creating price request.'})
 			
@@ -69,7 +69,7 @@ def get_requests():
 		.order_by(desc(PriceRequest.ludate)).all())
 
 
-	print([price_request_to_json(price_request)['request_reason'] for price_request in price_requests])
+	
 	return jsonify([price_request_to_json(price_request) for price_request in price_requests])
 
 @pricerequest.route('/pricerequests/statuschange', methods=['POST'])
@@ -153,7 +153,7 @@ def products():
 	search_term = request.args.get('q')
 	if search_term:
 		query_results = Product.query.filter(
-			Product.productname.like('%' + search_term + '%')).all()
+			Product.productname.ilike('%' + search_term + '%')).all()
 	else:
 		query_results = Product.query.all()
 
@@ -168,11 +168,10 @@ def customers():
 
 	if search_term:
 		query_results = Customer.query.filter(
-			Customer.customername.like('%' + search_term + '%')).all()
+			Customer.customername.ilike('%' + search_term + '%')).all()
 	else:
 		query_results = Customer.query.all()
 	results = [{'id': customer.customerid, 'label': customer.customername} for customer in query_results]
-	print('results are {}'.format(results))
 	return jsonify(results)
 
 @pricerequest.route('/pricerequeststatuses')

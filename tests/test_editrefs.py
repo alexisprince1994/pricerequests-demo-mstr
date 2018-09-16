@@ -9,7 +9,7 @@ from app import create_app, db, bcrypt
 from app.models import User, Customer, Product
 from flask_testing import TestCase
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 class TestEditReference(TestCase):
 
