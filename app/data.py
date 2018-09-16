@@ -49,7 +49,7 @@ def create_products(Product, db):
 	    11,
 	    28,
 	    15,
-	    9
+	    21
     ]
 
 	costs = [
@@ -65,7 +65,7 @@ def create_products(Product, db):
     	8,
     	22,
     	6,
-    	21
+    	9
     ]
 
 	for product, price, cost in zip(products, prices, costs):
