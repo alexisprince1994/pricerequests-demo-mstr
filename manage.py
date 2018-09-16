@@ -10,7 +10,7 @@ def test():
 	Runs tests without coversage
 	"""
 	tests = unittest.TestLoader().discover('tests', pattern='test*.py')
-	result = unittest.TextTestRunner(verbosity=1).run(tests)
+	result = unittest.TextTestRunner(verbosity=2).run(tests)
 	if result.wasSuccessful():
 		return 0
 	return 1
