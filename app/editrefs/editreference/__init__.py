@@ -23,7 +23,7 @@ class EditReference(object):
 
 	def __init__(self, db, client_data, request_method, table=None, system_columns=None,
 			editable_columns=None, columns=None, compare_ludate=True, 
-			allowed_request_methods=None, pk=None, requesting_username=None):
+			allowed_request_methods=None, pk=None, requesting_username=None, column_exclusions=None):
 
 		self.table = table
 		if pk is not None:
@@ -40,6 +40,7 @@ class EditReference(object):
 		self.editable_columns = editable_columns
 		self.columns = columns
 		self.compare_ludate = compare_ludate
+		self.column_exclusions = column_exclusions
 
 		self.requesting_username = requesting_username
 
@@ -79,7 +80,8 @@ class EditReference(object):
 		for col in columns:
 			if timestamp_columns:
 				if col in timestamp_columns:
-					data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1)).total_seconds()
+					data_dict[str(col)] = getattr(instance, col).timestamp()
+					# data_dict[str(col)] = (getattr(instance, col)  - datetime.datetime(1970, 1, 1)).total_seconds()
 				else:
 					data_dict[str(col)] = getattr(instance, col)
 			else:
@@ -160,7 +162,7 @@ class EditReference(object):
 				continue
 
 			if not callable(transformer):
-				raise ValueError('Transformer must be callable.')
+				raise TypeError('Transformer must be callable.')
 
 			if caps_req_method not in self.allowed_request_methods:
 				raise ValueError('Trying to transform an unsupported request method for this table.')
@@ -225,7 +227,8 @@ class EditReference(object):
 					
 				self.db.session.add(server_instance)
 				self.db.session.commit()
-				client_record['server_data'] = self.sqlalchemy_converter(server_instance, timestamp_columns=['crdate', 'ludate'])
+				client_record['server_data'] = self.sqlalchemy_converter(server_instance, timestamp_columns=['crdate', 'ludate'],
+					column_exclusions=self.column_exclusions)
 				client_record['modified_ok'] = True
 				yield client_record
 				continue
@@ -326,7 +329,8 @@ class EditReference(object):
 				
 				self.db.session.add(server_instance)
 				self.db.session.commit()
-				client_record['server_data'] = self.sqlalchemy_converter(server_instance, timestamp_columns=['crdate', 'ludate'])
+				client_record['server_data'] = self.sqlalchemy_converter(server_instance, timestamp_columns=['crdate', 'ludate'],
+					column_exclusions=self.column_exclusions)
 				client_record['modified_ok'] = True
 				yield client_record
 			except IntegrityError as e:
