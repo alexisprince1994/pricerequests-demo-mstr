@@ -108,6 +108,7 @@
               <span>Options</span>
               <div class="dropdown-menu">
                 <a class="dropdown-item" id="findModalOption" data-toggle="modal" data-target="#findModal">Find</a>
+                <a class="dropdown-item" id="hideSystemColumns">Hide System Columns</a>
                 <a class="dropdown-item disabled noclick" id="showErrors">Show Errors</a>
                 <a class="dropdown-item" id="copyToClipboard">Copy to Clipboard</a>
                 <div class="dropdown-divider"></div>
@@ -221,12 +222,17 @@
     const $deleteButton = $('#deleteButton');
     const $saveButton = $('#saveButton');
     const $addRowButton = $('#addRowButton');
+    const $hideSystemColumnsDropdownItem = $('#hideSystemColumns');
     const $viewErrorsButton = $('#viewErrorsButton');
     var $findTable = $('#findTable');
 
     $showErrorsDropdownItem.on('click', function(e) {
       filterTableByClass(editrefManager.$table, 'database-error');
     });
+
+    $hideSystemColumnsDropdownItem.on('click', function(e) {
+      editrefManager.hideSystemColumns();
+    })
 
     $('[data-toggle="tooltip]"').tooltip();
 
