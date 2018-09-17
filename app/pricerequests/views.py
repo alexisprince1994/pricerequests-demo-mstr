@@ -1,12 +1,19 @@
 from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
 from app.models import Customer, Product, PriceRequestStatus, PriceRequest
-from app import db
+from app import db, csrf
 from flask_login import current_user, login_required
 from sqlalchemy import desc
 import datetime
+import logging
+
+
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 pricerequest = Blueprint('pricerequest', __name__, 
 	static_folder='../static/dist', template_folder='../static')
+
 
 
 def redirect_not_authorized():
@@ -68,9 +75,11 @@ def get_requests():
 		.join(Product)
 		.order_by(desc(PriceRequest.ludate)).all())
 
-
 	
-	return jsonify([price_request_to_json(price_request) for price_request in price_requests])
+	
+	serialized_requests = [price_request_to_json(price_request) for price_request in price_requests]
+	logging.debug('serialized_requests are {}'.format(serialized_requests))
+	return jsonify(serialized_requests)
 
 @pricerequest.route('/pricerequests/statuschange', methods=['POST'])
 @login_required

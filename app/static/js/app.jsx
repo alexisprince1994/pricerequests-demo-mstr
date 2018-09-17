@@ -17,6 +17,7 @@ export default class App extends React.Component {
     super(props)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.onFormValidate = this.onFormValidate.bind(this)
+    this.dismissAlert = this.dismissAlert.bind(this)
     this.state = PriceRequestStore.getFormStatus()
   }
 
@@ -38,18 +39,22 @@ export default class App extends React.Component {
     this.setState(PriceRequestStore.getFormStatus())
   }
 
+  dismissAlert () {
+    PriceRequestActions.dismissAlert()
+  }
+
   render () {
     let feedback
 
     if (this.state.submitted) {
       if (this.state.isValid) {
         feedback =
-          <div className='alert alert-success' title='Click to dismiss'>
+          <div className='alert alert-success' title='Click to dismiss' onClick={this.dismissAlert}>
             <strong>Success!</strong> Successfully saved the form.
           </div>
       } else {
         feedback =
-          <div className='alert alert-danger' title='Click to dismiss'>
+          <div className='alert alert-danger' title='Click to dismiss' onClick={this.dismissAlert}>
             <strong>Error!</strong> Please fill out all fields correctly and try again
           </div>
       }
@@ -66,7 +71,7 @@ export default class App extends React.Component {
         <h1> Special Pricing Consideration Form </h1>
         <br />
         <div className='container'>
-          {feedback && feedback ? feedback : ''}
+          {feedback && this.state.showAlert ? feedback : ''}
         </div>
 
         <form>

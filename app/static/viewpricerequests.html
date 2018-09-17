@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 {% block html%}
 </main>
+	
+	<script>
+    	window.appConfig = {
+    		'csrfToken': '{{ csrf_token() }}'
+    	}
+    </script>
     <div id="content" />
     <script src="{{ url_for('static', filename='viewPriceRequest-bundle.js') }}"
     type="text/javascript"></script>
+    
 <main>
 {% endblock %}

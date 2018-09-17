@@ -80,7 +80,10 @@ class PriceRequestStore extends EventEmitter {
     this.isDraft = IS_DRAFT_DEFAULT
     this.validation = VALIDATION_DEFAULT
     this.formSubmitted = false
+    this.showAlert = false
     this.isValid = false
+    // Window variable passed from Server for CSRF Protection
+    this.csrfToken = appConfig.csrfToken
   }
 
   validatePayload (data) {
@@ -102,19 +105,27 @@ class PriceRequestStore extends EventEmitter {
     const isPayloadValidated = this.validatePayload(this.validation)
 
     if (isPayloadValidated) {
+      const token = this.csrfToken
       this.clearForm()
       this.isValid = true
       fetch('/pricerequests', {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRFToken': token
         }
       })
     } else {
       this.isValid = false
     }
     this.formSubmitted = true
+    this.showAlert = true
+    this.emit('change')
+  }
+
+  dismissAlert () {
+    this.showAlert = false
     this.emit('change')
   }
 
@@ -129,10 +140,10 @@ class PriceRequestStore extends EventEmitter {
     this.isDraft = IS_DRAFT_DEFAULT
     this.validation = VALIDATION_DEFAULT
     this.formSubmitted = false
+    this.showAlert = false
     this.isValid = false
     this.shouldClear = true
-    console.log('from clearForm, prices default is ', PRICES_DEFAULT)
-    console.log('from clearForm, this.prices is ', this.prices)
+
     this.emit('change')
   }
 
@@ -343,6 +354,7 @@ class PriceRequestStore extends EventEmitter {
     return {
       isValid: this.validatePayload(this.validation),
       submitted: this.formSubmitted,
+      showAlert: this.showAlert,
       customerid: this.customer.id,
       requestedPrice: this.prices.requestedPrice.value,
       requestedUnits: this.units.value,
@@ -416,6 +428,11 @@ class PriceRequestStore extends EventEmitter {
         this.clearForm()
         break
       }
+      case 'DISMISS_ALERT': {
+        this.dismissAlert()
+        break
+      }
+
       default : {
         console.log('default case called. Write a handler. action was ', action)
       }

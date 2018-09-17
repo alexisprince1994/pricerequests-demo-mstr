@@ -9,6 +9,12 @@ export function updateCustomer (id, label, fromDropdown) {
   })
 }
 
+export function dismissAlert () {
+  PriceRequestDispatcher.dispatch({
+    actionType: 'DISMISS_ALERT'
+  })
+}
+
 export function submitForm () {
   PriceRequestDispatcher.dispatch({
     actionType: 'SUBMIT_FORM'

@@ -12,6 +12,7 @@ class ApprovalStore extends EventEmitter {
     this.filterOptions = []
     this.dateFilterOptions = []
     this.alertInfo = {'message': '', 'isPositive': null, 'displayAlerts': false}
+    this.csrfToken = appConfig.csrfToken
   }
 
   _filterRequests () {
@@ -60,11 +61,13 @@ class ApprovalStore extends EventEmitter {
 
   deletePriceRequest (id) {
     console.log('calling delete request with id ', id)
+    const token = this.csrfToken
     const deleteFromArray = this.deleteFromArray.bind(this)
     fetch('/pricerequests/delete/' + id, {
       'method': 'DELETE',
       'headers': {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token
       }
     })
       .then(res => res.json())
@@ -84,30 +87,39 @@ class ApprovalStore extends EventEmitter {
   approvePriceRequest (id, newStatus) {
     const updateRequest = this.updateRequest.bind(this)
     const reqData = {id, 'status': newStatus}
+    const token = this.csrfToken
 
     fetch('/pricerequests/statuschange', {
       'method': 'POST',
       'body': JSON.stringify(reqData),
       'headers': {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token
       }
     })
       .then(res => res.json())
       .then(data => updateRequest(data))
+
+    this._filterRequests()
   }
 
   denyPriceRequest (id, newStatus) {
     const updateRequest = this.updateRequest.bind(this)
     const reqData = {id, 'status': newStatus}
+    const token = this.csrfToken
+
     fetch('/pricerequests/statuschange', {
       'method': 'POST',
       'body': JSON.stringify(reqData),
       'headers': {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token
       }
     })
       .then(res => res.json())
       .then(data => updateRequest(data))
+
+    this._filterRequests()
   }
 
   refreshFilterOptions () {

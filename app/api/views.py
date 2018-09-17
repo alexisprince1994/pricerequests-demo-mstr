@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify, make_response, Response
 import os
 from app.models import Customer, Product, PriceRequest
-from app import db
+from app import db, csrf
 from sqlalchemy import desc
 
 api = Blueprint('api', __name__)
+
+# Already implementing security via tokens
+csrf.exempt(api)
 
 def make_error(msg):
 

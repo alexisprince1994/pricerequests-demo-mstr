@@ -2,6 +2,11 @@
 {% block html%}
 </main>
     <div id="content" />
+    <script>
+    	window.appConfig = {
+    		'csrfToken': '{{ csrf_token() }}'
+    	}
+    </script>
     <script src="{{ url_for('static', filename='priceRequest-bundle.js') }}" type="text/javascript"></script>
   <main>
 {% endblock %}
