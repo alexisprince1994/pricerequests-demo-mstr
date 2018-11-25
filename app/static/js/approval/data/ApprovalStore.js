@@ -65,6 +65,7 @@ class ApprovalStore extends EventEmitter {
     const deleteFromArray = this.deleteFromArray.bind(this)
     fetch('/pricerequests/delete/' + id, {
       'method': 'DELETE',
+      'credentials': 'include',
       'headers': {
         'Content-Type': 'application/json',
         'X-CSRFToken': token
@@ -91,6 +92,7 @@ class ApprovalStore extends EventEmitter {
 
     fetch('/pricerequests/statuschange', {
       'method': 'POST',
+      'credentials': 'include',
       'body': JSON.stringify(reqData),
       'headers': {
         'Content-Type': 'application/json',
@@ -110,6 +112,7 @@ class ApprovalStore extends EventEmitter {
 
     fetch('/pricerequests/statuschange', {
       'method': 'POST',
+      'credentials': 'include',
       'body': JSON.stringify(reqData),
       'headers': {
         'Content-Type': 'application/json',
@@ -194,7 +197,9 @@ class ApprovalStore extends EventEmitter {
   loadRequests () {
     console.log('load requests is called')
     const populateRequests = this.populateRequests.bind(this)
-    fetch('/pricerequests/get')
+    fetch('/pricerequests/get', {
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(data => populateRequests(data))
   }

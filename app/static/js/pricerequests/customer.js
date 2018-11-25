@@ -82,7 +82,9 @@ class Customer extends Component {
             options={this.state.options}
             onSearch={query => {
               this.setState({isLoading: true})
-              fetch(`customers?q=${query}`)
+              fetch(`customers?q=${query}`, {
+                credentials: 'include'
+              })
                 .then(res => res.json())
                 .then(json => this.setState({
                   isLoading: false,

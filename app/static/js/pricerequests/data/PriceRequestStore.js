@@ -106,16 +106,19 @@ class PriceRequestStore extends EventEmitter {
 
     if (isPayloadValidated) {
       const token = this.csrfToken
+      console.log('token from createPriceRequest is ', token)
       this.clearForm()
       this.isValid = true
       fetch('/pricerequests', {
         method: 'POST',
         body: JSON.stringify(payload),
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': token
         }
       })
+        .then(res => console.log(res))
     } else {
       this.isValid = false
     }
@@ -177,7 +180,9 @@ class PriceRequestStore extends EventEmitter {
 
     const priceUrl = 'prices/' + id
 
-    fetch(priceUrl)
+    fetch(priceUrl, {
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(data => handlePrices(data))
   }

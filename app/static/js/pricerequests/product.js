@@ -89,8 +89,11 @@ class Product extends Component {
             options={this.state.options}
             onSearch={query => {
               this.setState({isLoading: true})
-              fetch(`products?q=${query}`)
+              fetch(`products?q=${query}`, {
+                credentials: 'include'
+              })
                 .then(res => res.json())
+                .catch(err => console.log('There was an error fetching products. ', err))
                 .then(json => this.setState({
                   isLoading: false,
                   options: json
