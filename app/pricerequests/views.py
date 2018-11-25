@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash
+from flask import Blueprint, render_template, jsonify, redirect, url_for, request, flash, session
 from app.models import Customer, Product, PriceRequestStatus, PriceRequest
 from app import db, csrf
 from flask_login import current_user, login_required
@@ -26,10 +26,15 @@ def redirect_register():
 @login_required
 def pricerequests():
 
+	logging.debug('current_user is {}'.format(current_user))
+	logging.debug('session is {}'.format(session))
+
 	if not current_user.active:
+		logging.debug('Current user is not active. Redirecting...')
 		return redirect_not_authorized()
 
 	if current_user.read_only and request.method == 'POST':
+		logging.debug('Current is is not authorized to post to this route. Redirecting...')
 		return redirect_not_authorized()
 
 	if request.method == 'POST':
@@ -68,6 +73,8 @@ def price_request_to_json(price_request):
 
 @pricerequest.route('/pricerequests/get')
 def get_requests():
+
+	logging.debug('Getting price requests...')
 	
 	price_requests = (PriceRequest
 		.query
@@ -145,6 +152,8 @@ def view():
 @pricerequest.route('/prices/<id>')
 @login_required
 def prices(id):
+
+	logging.debug('prices/{} : requesting user is {}'.format(id, current_user))
 	if current_user.read_only:
 		return redirect_not_authorized()
 
@@ -155,8 +164,11 @@ def prices(id):
 @login_required
 def products():
 
-	if current_user.read_only:
-		return redirect_not_authorized()
+	logging.debug('session is {}'.format(session))
+
+	# if current_user.read_only:
+	# 	logging.debug('Current user is read_only. Redirecting...')
+	# 	return redirect_not_authorized()
 
 	
 	search_term = request.args.get('q')
@@ -170,8 +182,12 @@ def products():
 	return jsonify(results)
 
 @pricerequest.route('/customers')
-@login_required
 def customers():
+
+	logging.debug('session is {}'.format(session))
+	logging.debug('Route /customers: Current user is {}'.format(current_user))
+	logging.debug('Searching customers with query string {}'.format(
+		request.args.get('q')))
 
 	search_term = request.args.get('q')
 
